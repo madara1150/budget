@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget.Edit_budget" owl="1">
+    
+        <div class="container-xxl full-height-scroll" style="min-height: 90vh;">
+            <div class="col-12 mt-5">
+
+                <!-- ชื่อแผน  -->
+                <div class="text-center">
+                    <div class="mt-3">
+                        <h5><span t-esc="state.budget.budget_template_name" /></h5>
+                        <h5>สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</h5>
+                    </div>  
+                </div>
+                
+                <!-- หน้า Loop กิจกรรม  -->
+                <div t-att-class="'mt-3'">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="bg-head">
+                                    <th class="text-center" style="width: 150px"><i t-on-click="() =>this.toggleRotate('all_activity')" t-att-class="state.rotated.all_activity ? 'rotated' : ''" class="fa cursor-pointer fa-chevron-down" style="font-size:15px;transition: transform 0.3s;"></i></th>
+                                    <th></th>
+                                    <th>จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="!state.rotated.all_activity" t-foreach="state.budget_plan.budget_activity" t-as="parent" t-key="parent.id">
+                                    <t t-if="!parent.parent_id">
+
+                                        <tr class="bg-fund">
+                                            <td class="fw-bold text-center">
+                                                <t t-esc="parent.code" />
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold">
+                                                    <t t-esc="parent.name" />
+                                                </span>
+                                            </td>
+                                            <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                        </tr>
+                                        
+                                        <t t-foreach="state.budget_plan.budget_activity" t-as="child" t-key="child.id">
+                                            <t t-if="child.parent_id and child.parent_id[0] == parent.id">
+                                                <tr>
+                                                    <td class="fw-bold text-center">
+                                                        <t t-esc="parent.code+child.code" />
+                                                    </td>
+                                                    <td>
+                                                        <span class="fw-bold" style="padding-left: 30px;">
+                                                            <t t-esc="child.name" />
+                                                        </span>
+                                                    </td>
+                                                    <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                </tr>
+
+                                                <t t-foreach="state.budget_plan.budget_activity" t-as="subchild" t-key="subchild.id">
+                                                    <t t-if="subchild.parent_id and subchild.parent_id[0] == child.id">
+                                                        <tr>
+                                                            <td class="fw-bold text-center">
+                                                                <span><t t-esc="subchild.code" /></span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="fw-bold" style="padding-left: 60px;">
+                                                                    <t t-esc="subchild.name" />
+                                                                </span>
+                                                            </td>
+                                                            <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                        </tr>
+
+                                                        <t t-foreach="state.budget_plan.budget_activity" t-as="subsubchild" t-key="subsubchild.id">
+                                                            <t t-if="subsubchild.parent_id and subsubchild.parent_id[0] == subchild.id">
+                                                                <tr>
+                                                                    <td class="fw-semibold text-center">
+                                                                        <span><t t-esc="subsubchild.code" /></span>
+                                                                        <div>
+                                                                            <i t-on-click="() =>this.toggleRotate(subsubchild.id+subchild.id)" t-att-class="state.rotated[subsubchild.id+subchild.id] ? 'rotated' : ''" class="fa cursor-pointer fa-chevron-down" style="font-size:15px;transition: transform 0.3s;"></i>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="d-flex gap-2">
+                                                                            <span t-att-class="state.budget.select_activity == subsubchild.id ? 'blink-text text-danger' : 'fw-semibold'" style="padding-left: 90px;"><t t-esc="subsubchild.name" /></span>
+                                                                            <i class="" t-att-class="state.budget.select_activity == subsubchild.id ? 'fa fa-edit cursor-pointer fa-lg blink-text text-danger' : 'fa fa-edit cursor-pointer fa-lg'" t-on-click="() => this.loadingToggle(subsubchild.name ,subsubchild)"></i>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                                </tr>
+
+                                                                <t t-if="!state.rotated[subsubchild.id+subchild.id]" t-foreach="state.budget_plan.budget_activity" t-as="sub_subsubchild" t-key="sub_subsubchild.id">
+                                                                    <t t-if="sub_subsubchild.parent_id and sub_subsubchild.parent_id[0] == subsubchild.id">
+                                                                        <tr>
+                                                                            <td class="fw-semibold text-center">
+                                                                                <t t-esc="sub_subsubchild.code" />
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="d-flex gap-2">
+                                                                                    <span t-att-class="state.budget.select_activity == sub_subsubchild.id ? 'blink-text text-danger' : 'fw-semibold'" style="padding-left: 90px;"><t t-esc="sub_subsubchild.name" /></span>
+                                                                                    <i t-att-class="state.budget.select_activity == sub_subsubchild.id ? 'fa fa-edit cursor-pointer fa-lg blink-text text-danger' : 'fa fa-edit cursor-pointer fa-lg'" t-on-click="() => this.loadingToggle(sub_subsubchild.name ,sub_subsubchild)"></i>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                                        </tr>
+                                                                    </t>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+
+                                                    </t>
+                                                </t>
+
+                                            </t>
+                                        </t>
+
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table> 
+                </div>
+                
+                <!-- เลือกงบ  -->
+                <div class="text-center" t-if="state.activity.activity_active_name"> 
+                    <div class="d-flex col-6 mt-3">
+                        <span style="width: 150px">งบประมาณ : </span>
+                        <select class="form-select" aria-label="กรุณาเลือกงบประมาณ..." t-model="state.budget.plan" t-on-change="onBudgetPlanChange">
+                            <option value="0">กรุณาเลือกงบ...</option>
+                            <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="plan" t-key="plan.id">
+                                <t t-if="!plan.parent_id">
+                                    <option t-att-value="plan.id" t-esc="plan.name" />
+                                </t>
+                                
+                            </t>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- กดฟังก์ชั่น กำลังทำงานอะไร  -->
+                <div class="mt-3">
+                    <t t-if="state.activity.activity_active_name">
+                        <h4 class="text-danger blink-text">คุณกำลังทำรายการ <span t-esc="state.activity.activity_active_name" /></h4>
+                    </t>
+                    <t t-if="!state.activity.activity_active_name">
+                        <h4 class="text-danger blink-text">กรุณาเลือกกิจกรรม</h4>
+                    </t>
+                </div>
+                
+                <div t-att-class="'mt-3'">
+                    <!-- loading -->
+                    <t t-if="state.budget.load">
+                        <div class="d-flex justify-content-center mt-5">
+                            <div class="loader"></div>
+                        </div>
+                    </t>
+                    <!-- loop งบประมาณ  -->
+                    <t t-else="state.budget.load">
+                        <table class="table table-bordered" t-if="state.activity.activity_active_name">
+                            <thead>
+                                <tr class="bg-head">
+                                    <th class="text-center" style="width: 150px">รหัสค่าใช้จ่าย</th>
+                                    <th></th>
+                                    <th>จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- กองทุน สรุป  -->
+                                <tr class="bg-fund">
+                                    <td class="fw-bold text-center">
+                                        <i style="font-size:15px;transition: transform 0.3s;"></i>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold" t-esc="state.budget.plan_name" />
+                                    </td>
+                                    <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                </tr>
+                                <!-- loop กองทุน  -->
+                                <t t-foreach="state.budget_plan.budget_fund" t-as="fund" t-key="fund.id">
+                                    <t t-if="!fund.parent_id">
+                                        <tr class="bg-fund">
+                                            <td class="fw-bold text-center">
+                                                <i t-on-click="() =>this.toggleRotate(fund.id)" t-att-class="state.rotated[fund.id] ? 'rotated' : ''" class="fa cursor-pointer fa-chevron-down text-start" style="font-size:15px;transition: transform 0.3s;"></i>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold" t-esc="fund.name"></span>
+                                            </td>
+                                            <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                        </tr>
+
+                                        <!-- งบบุคลากร -->
+                                        <t t-if="!state.rotated[fund.id]">
+                                            <!-- child_1 -->
+                                            <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="parent" t-key="parent.id">
+                                                <t t-if="!parent.parent_id and parent.id == state.budget.plan">
+
+                                                    <!-- child_2 -->
+                                                    <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="child" t-key="child.id">
+                                                        <t t-if="child.parent_id and child.parent_id[0] == parent.id">
+                                                            <tr>
+                                                                <td class="fw-bold text-center">
+                                                                    <t t-esc="child.code" />
+                                                                </td>
+                                                                <td>
+                                                                    <span class="fw-bold" style="padding-left: 30px;">
+                                                                        <t t-esc="child.name" />
+                                                                    </span>
+                                                                </td>
+                                                                <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                            </tr>
+                                                            <!-- child_3 -->
+                                                            <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="subchild" t-key="subchild.id">
+                                                                <t t-if="subchild.parent_id and subchild.parent_id[0] == child.id">
+                                                                    <tr>
+                                                                        <td class="fw-bold text-center">
+                                                                            <span><t t-esc="subchild.code" /></span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="fw-bold" style="padding-left: 60px;">
+                                                                                <t t-esc="subchild.name" />
+                                                                            </span>
+                                                                        </td>
+                                                                        <td><input type="number" class="form-control text-end" value="10000000" readonly="0" /></td>
+                                                                    </tr>
+                                                                    <!-- child_4 -->
+                                                                    <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="subsubchild" t-key="subsubchild.id">
+                                                                            <t t-if="subsubchild.parent_id and subsubchild.parent_id[0] == subchild.id">
+                                                                                <t t-if="state.budget.plan != 193">
+                                                                                    <tr>
+                                                                                        <td class="fw-semibold text-center">
+                                                                                            <t t-esc="subsubchild.code" />
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <div class="d-flex gap-2 align-items-center">
+                                                                                                <span class="fw-semibold" style="padding-left: 90px;">
+                                                                                                    <t t-esc="subsubchild.name" />
+                                                                                                </span>
+                                                                                                <i t-on-click="() => this.toggleNote(fund.id, subsubchild.code)" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                                                            </div>
+                                                                                            <div style="padding-left: 90px;">
+                                                                                                <t t-if="subsubchild.plan_line">
+                                                                                                    <textarea class="form-control mt-2" t-model="this.state.budget_salary_note[`${subsubchild.plan_line.id}-${subsubchild.id}`]" t-att-disabled="!this.state[`${fund.id}-${subsubchild.code}`]" t-att-value="this.state.budget_salary_note[`${subsubchild.plan_line.id}-${subsubchild.id}`] || subsubchild.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                                                </t>
+                                                                                                <t t-else="">
+                                                                                                    <textarea class="form-control mt-2" t-model="this.state.budget_salary_note[`${fund.id}-${subsubchild.code}`]" t-att-disabled="!this.state[`${fund.id}-${subsubchild.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                                                </t>
+                                                                                                <div class="d-flex gap-2">
+                                                                                                    <button class="btn btn-success mt-2" t-att-class="!this.state[`${fund.id}-${subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(subsubchild ,fund.id)">บันทึก</button>
+                                                                                                    <button class="btn btn-danger mt-2" t-att-class="!this.state[`${fund.id}-${subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(subsubchild, fund.id)">ยกเลิก</button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <t t-if="subsubchild.plan_line">
+                                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_salary_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`]" t-att-value="this.state.budget_salary_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`] || subsubchild.plan_line.amount" t-on-blur="() => onBlurSavePlan(subsubchild, fund.id)" />
+                                                                                            </t>
+                                                                                            <t t-else="">
+                                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_salary_amount[`${subsubchild.code}-${subsubchild.id}`]" t-on-blur="() => onBlurSaveCreate(subsubchild, fund.id)" />
+                                                                                            </t>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </t>
+
+                                                                                <t t-else="">
+                                                                                    <tr>
+                                                                                        <td class="fw-semibold text-center">
+                                                                                            <t t-esc="subsubchild.code" />
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <span class="fw-semibold d-flex gap-2" style="padding-left: 90px;">
+                                                                                                <t t-esc="subsubchild.name" />
+                                                                                                <i data-bs-toggle="modal" data-bs-target="#capital_tree" t-on-click="() => this.modalCapital(subsubchild)"  class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                                                            </span>
+                                                                                            <t t-if="subsubchild.capital_expenditures">
+                                                                                                <t t-foreach="subsubchild.capital_expenditures" t-as="capital" t-key="capital.id">
+                                                                                                <div class="d-flex gap-2 align-items-center">
+                                                                                                    <span class="fw-semibold" style="padding-left: 120px;">
+                                                                                                        - <t t-esc="capital.name" />
+                                                                                                    </span>
+                                                                                                </div>
+                                                                                            </t>
+                                                                                            </t>
+                                                                                            
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <t t-if="subsubchild.plan_line">
+                                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_salary_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`]" t-att-value="this.state.budget_salary_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`] || subsubchild.plan_line.amount" t-on-blur="() => onBlurSavePlan(subsubchild, fund.id)" />
+                                                                                            </t>
+                                                                                            <t t-else="">
+                                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_salary_amount[`${subsubchild.code}-${subsubchild.id}`]" t-on-blur="() => onBlurSaveCreate(subsubchild, fund.id)" />
+                                                                                            </t>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </t>
+                                                                                
+                                                                                    <!-- modal -->
+                                                                                    <div class="modal fade" id="capital_tree" tabindex="-1" aria-labelledby="Modal_tree" aria-hidden="true">
+                                                                                        <div class="modal-dialog modal-xl">
+                                                                                            <div class="modal-content">
+                                                                                            <div class="modal-header">
+                                                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">แผนการจัดซื้อจัดจ้าง</h1>
+                                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                            </div>
+                                                                                            
+                                                                                            <div class="modal-body">
+                                                                                                <table class="table table-bordered">
+                                                                                                    <thead>
+                                                                                                        <tr class="bg-head">
+                                                                                                            <th>รายการ</th>
+                                                                                                            <th></th>
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                        <t t-if="state.budget_plan.budget_plan_line_modal">
+                                                                                                            <t t-foreach="state.budget_plan.budget_plan_line_modal" t-as="capital" t-key="capital.id">
+                                                                                                                <tr class="record-row">
+                                                                                                                    <td data-bs-toggle="modal" data-bs-target="#capital_form" t-on-click="() => this.openEditCapital(capital)">
+                                                                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                                                                            <span t-esc="capital.name" />
+                                                                                                                        </div>
+                                                                                                                    </td>
+                                                                                                                    <td style="width:20px;">
+                                                                                                                        <i class="fa fa-trash cursor-pointer fa-lg text-danger" data-bs-dismiss="modal" t-on-click="() => this.deleteCapital(capital)"></i>
+                                                                                                                    </td>
+                                                                                                                </tr>
+                                                                                                            </t>
+                                                                                                        </t>
+                                                                                                        
+                                                                                                        
+                                                                                                    <tbody>
+                                                                                                    
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            </div>
+                                                                                            <div class="modal-footer gap-2 d-flex">
+                                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                                                                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#capital_form_create" t-on-click="() => this.openCreateCapital()">เพิ่มข้อมูล</button>
+                                                                                            </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <!-- modal 2 -->
+                                                                                    <div class="modal fade" id="capital_form" tabindex="-1" aria-labelledby="ModalCapital" aria-hidden="true">
+                                                                                        <div class="modal-dialog modal-lg">
+                                                                                            <div class="modal-content">
+                                                                                            <div class="modal-header">
+                                                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">แผนการจัดซื้อจัดจ้าง(แก้ไข)</h1>
+                                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                            </div>
+                                                                                            <div class="modal-body">
+                                                                                                <div class="d-flex align-items-center flex-column gap-2">
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">ชื่อรายการ</span>
+                                                                                                        <input type="text" class="form-control" t-model="state.capital_form.name" placeholder="รายการ" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">วันที่คาดว่าจะจัดซื้อจัดจ้าง</span>
+                                                                                                        <input type="date" class="form-control" t-model="state.capital_form.expected_purchase_date" placeholder="วันที่คาดว่าจะจัดซื้อจัดจ้าง" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">หมายเหตุ</span>
+                                                                                                        <input type="text" class="form-control" t-model="state.capital_form.note" placeholder="หมายเหตุ" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">แผนการเบิกจ่าย</span>
+                                                                                                        <select class="form-select" aria-label="แผนการเบิกจ่าย" t-model="state.capital_form.payment_plan">
+                                                                                                            <option value="single">ไม่มีการแบ่งงวด</option>
+                                                                                                            <option value="installment">แบ่งจ่ายเป็นงวด</option>
+                                                                                                        </select>
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">จำนวนเงิน</span>
+                                                                                                        <input type="number" class="form-control" t-model="state.capital_form.amount" placeholder="จำนวนเงิน" />
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="modal-footer gap-2 d-flex">
+                                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                                                                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" t-on-click="saveEditCapital">บันทึก</button>
+                                                                                            </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <!-- modal 3 -->
+                                                                                    <div class="modal fade" id="capital_form_create" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                                                        <div class="modal-dialog modal-lg">
+                                                                                            <div class="modal-content">
+                                                                                            <div class="modal-header">
+                                                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">แผนการจัดซื้อจัดจ้าง(สร้าง)</h1>
+                                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                            </div>
+                                                                                            <div class="modal-body">
+                                                                                                <div class="d-flex align-items-center flex-column gap-2">
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">ชื่อรายการ</span>
+                                                                                                        <input type="text" class="form-control" t-model="state.capital_form.name" placeholder="รายการ" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">วันที่คาดว่าจะจัดซื้อจัดจ้าง</span>
+                                                                                                        <input type="date" class="form-control" t-model="state.capital_form.expected_purchase_date" placeholder="วันที่คาดว่าจะจัดซื้อจัดจ้าง" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">หมายเหตุ</span>
+                                                                                                        <input type="text" class="form-control" t-model="state.capital_form.note" placeholder="หมายเหตุ" />
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">แผนการเบิกจ่าย</span>
+                                                                                                        <select class="form-select" aria-label="แผนการเบิกจ่าย" t-model="state.capital_form.payment_plan">
+                                                                                                            <option value="single">ไม่มีการแบ่งงวด</option>
+                                                                                                            <option value="installment">แบ่งจ่ายเป็นงวด</option>
+                                                                                                        </select>
+                                                                                                    </div>
+                                                                                                    <div class="input-group align-items-center flex-nowrap ">
+                                                                                                        <span style="width:200px">จำนวนเงิน</span>
+                                                                                                        <input type="number" class="form-control" t-model="state.capital_form.amount" placeholder="จำนวนเงิน" />
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="modal-footer gap-2 d-flex">
+                                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                                                                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" t-on-click="saveCapital">บันทึก</button>
+                                                                                            </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                            </t>
+                                                                    
+                                                                    </t>
+
+                                                                </t>
+                                                            </t>
+
+                                                        </t>
+                                                    </t>
+
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

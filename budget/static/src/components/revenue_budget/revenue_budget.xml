@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget.Revenue_budget" owl="1">
+        <div class="o_action">
+            <Layout display="{
+                controlPanel: {
+                    'top-right' : false,
+                    'top-left' : false,
+                    'bottom-right': false,
+                    'bottom-left': false,
+                }
+            }">
+            </Layout>
+        </div>
+    </t>
+</templates>
