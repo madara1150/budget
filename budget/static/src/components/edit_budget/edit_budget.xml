@@ -43,7 +43,7 @@
                                             <t t-if="child.parent_id and child.parent_id[0] == parent.id">
                                                 <tr>
                                                     <td class="fw-bold text-center">
-                                                        <t t-esc="parent.code+child.code" />
+                                                        <t t-esc="child.code" />
                                                     </td>
                                                     <td>
                                                         <span class="fw-bold" style="padding-left: 30px;">
