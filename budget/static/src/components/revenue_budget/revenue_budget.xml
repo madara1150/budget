@@ -1,16 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
     <t t-name="budget.Revenue_budget" owl="1">
-        <div class="o_action">
-            <Layout display="{
-                controlPanel: {
-                    'top-right' : false,
-                    'top-left' : false,
-                    'bottom-right': false,
-                    'bottom-left': false,
-                }
-            }">
-            </Layout>
+        <div class="container-xxl full-height-scroll" style="min-height: 90vh;">
+            <div class="col-12 mt-5">
+
+                <!-- ชื่อ และหัวข้อ -->
+                <div class="text-center">
+                    <div class="mt-3">
+                        <h5><span t-esc="state.budget_plan.budget_plan_data.name" /></h5>
+                        <!-- <h5><span t-esc="state.budget_plan.budget_plan_department_name[1] or null" /></h5> -->
+                        <h5>สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</h5>
+                    </div>  
+                </div>
+
+                <!-- a -->
+
+                <!-- loop ข้อมูลตัวอย่าง -->
+                <div t-att-class="'mt-3'">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr class="bg-head">
+                                <th class="text-center" style="width: 150px"></th>
+                                <th></th>
+                                <th>จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- child 1 -->
+                            <t t-foreach="state.budget_template_line.budget_template_merge" t-as="parent" t-key="parent.id">
+                                <t t-if="!parent.parent_id">
+
+                                    <tr class="bg-fund">
+                                        <td class="fw-bold text-center">
+                                            <t t-esc="parent.code" />
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <span class="fw-semibold">
+                                                    <t t-esc="parent.name" />
+                                                </span>
+                                                <i t-on-click="() => this.toggleNote(parent)" t-if="parent.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <t t-if="parent.plan_line and parent.can_edit">
+                                                    <textarea class="form-control mt-2" t-att-class="!parent.plan_line.note and !this.state.toggle.note[`${parent.id}-${parent.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${parent.plan_line.id}-${parent.id}`]" t-att-disabled="!this.state.toggle.note[`${parent.id}-${parent.code}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_note[`${parent.plan_line.id}-${parent.id}`] || parent.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                </t>
+                                                <t t-elif="parent.can_edit">
+                                                    <textarea class="form-control mt-2" t-att-class="!this.state.toggle.note[`${parent.id}-${parent.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${parent.id}-${parent.code}`]" t-att-disabled="!this.state.toggle.note[`${parent.id}-${parent.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                </t>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${parent.id}-${parent.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(parent)">บันทึก</button>
+                                                    <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${parent.id}-${parent.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(parent)">ยกเลิก</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <t t-if="parent.plan_line">
+                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${parent.plan_line.id}-${parent.id}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${parent.plan_line.id}-${parent.id}`] || parent.plan_line.amount" t-att-disabled="!parent.can_edit" t-on-blur="() => onBlurSavePlan(parent)" />
+                                            </t>
+                                            <t t-else="">
+                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${parent.code}-${parent.id}`]" t-att-disabled="!parent.can_edit" t-on-blur="() => onBlurSaveCreate(parent)" />
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <!-- child 2 -->
+                                    <t t-foreach="state.budget_template_line.budget_template_merge" t-as="child" t-key="child.id">
+                                        <t t-if="child.parent_id and child.parent_id[0] == parent.id">
+                                            <tr>
+                                                <td class="fw-bold text-center">
+                                                    <t t-esc="child.code" />
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span class="fw-semibold" style="padding-left: 30px;">
+                                                            <t t-esc="child.name" />
+                                                        </span>
+                                                        <i t-on-click="() => this.toggleNote(child)" t-if="child.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                    </div>
+                                                    <div style="padding-left: 30px;">
+                                                        <t t-if="child.plan_line and child.can_edit">
+                                                            <textarea class="form-control mt-2" t-att-class="!child.plan_line.note and !this.state.toggle.note[`${child.id}-${child.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${child.plan_line.id}-${child.id}`]" t-att-disabled="!this.state.toggle.note[`${child.id}-${child.code}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_note[`${child.plan_line.id}-${child.id}`] || child.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                        </t>
+                                                        <t t-elif="child.can_edit">
+                                                            <textarea class="form-control mt-2" t-att-class="!this.state.toggle.note[`${child.id}-${child.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${child.id}-${child.code}`]" t-att-disabled="!this.state.toggle.note[`${child.id}-${child.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                        </t>
+                                                        <div class="d-flex gap-2">
+                                                            <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${child.id}-${child.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(child)">บันทึก</button>
+                                                            <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${child.id}-${child.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(child)">ยกเลิก</button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <t t-if="child.plan_line">
+                                                        <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${child.plan_line.id}-${child.id}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${child.plan_line.id}-${child.id}`] || child.plan_line.amount" t-att-disabled="!child.can_edit" t-on-blur="() => onBlurSavePlan(child)" />
+                                                    </t>
+                                                    <t t-else="">
+                                                        <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${child.code}-${child.id}`]" t-att-disabled="!child.can_edit" t-on-blur="() => onBlurSaveCreate(child)" />
+                                                    </t>
+                                                </td>
+                                            </tr>
+
+                                            <!-- child 3 -->
+                                            <t t-foreach="state.budget_template_line.budget_template_merge" t-as="subchild" t-key="subchild.id">
+                                                <t t-if="subchild.parent_id and subchild.parent_id[0] == child.id">
+                                                    <tr>
+                                                        <td class="fw-bold text-center">
+                                                            <span><t t-esc="subchild.code" /></span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex gap-2 align-items-center">
+                                                                <span class="fw-semibold" style="padding-left: 60px;">
+                                                                    <t t-esc="subchild.name" />
+                                                                </span>
+                                                                <i t-on-click="() => this.toggleNote(subchild)" t-if="subchild.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                            </div>
+                                                            <div style="padding-left: 60px;">
+                                                                <t t-if="subchild.plan_line and subchild.can_edit">
+                                                                    <textarea class="form-control mt-2" t-att-class="!subchild.plan_line.note and !this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${subchild.plan_line.id}-${subchild.id}`]" t-att-disabled="!this.state.toggle.note[`${subchild.id}-${subchild.code}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_note[`${subchild.plan_line.id}-${subchild.id}`] || subchild.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                </t>
+                                                                <t t-elif="subchild.can_edit">
+                                                                    <textarea class="form-control mt-2" t-att-class="!this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${subchild.id}-${subchild.code}`]" t-att-disabled="!this.state.toggle.note[`${subchild.id}-${subchild.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                </t>
+                                                                <div class="d-flex gap-2">
+                                                                    <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(subchild)">บันทึก</button>
+                                                                    <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(subchild)">ยกเลิก</button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <t t-if="subchild.plan_line">
+                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${subchild.plan_line.id}-${subchild.id}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${subchild.plan_line.id}-${subchild.id}`] || subchild.plan_line.amount" t-att-disabled="!subchild.can_edit" t-on-blur="() => onBlurSavePlan(subchild)" />
+                                                            </t>
+                                                            <t t-else="">
+                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${subchild.code}-${subchild.id}`]" t-att-disabled="!subchild.can_edit" t-on-blur="() => onBlurSaveCreate(subchild)" />
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- child 4 -->
+                                                    <t t-foreach="state.budget_template_line.budget_template_merge" t-as="subsubchild" t-key="subsubchild.id">
+                                                        <t t-if="subsubchild.parent_id and subsubchild.parent_id[0] == subchild.id">
+                                                            <tr>
+                                                                <td class="fw-semibold text-center">
+                                                                    <span><t t-esc="subsubchild.code" /></span>
+                                                                    <div>
+                                                                        
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex gap-2 align-items-center">
+                                                                        <span class="fw-semibold" style="padding-left: 90px;">
+                                                                            <t t-esc="subsubchild.name" />
+                                                                        </span>
+                                                                        <i t-on-click="() => this.toggleNote(subsubchild)" t-if="subsubchild.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                                    </div>
+                                                                    <div style="padding-left: 90px;">
+                                                                        <t t-if="subsubchild.plan_line and subsubchild.can_edit">
+                                                                            <textarea class="form-control mt-2" t-att-class="!subsubchild.plan_line.note and !this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${subsubchild.plan_line.id}-${subsubchild.id}`]" t-att-disabled="!this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_note[`${subsubchild.plan_line.id}-${subsubchild.id}`] || subsubchild.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                        </t>
+                                                                        <t t-elif="subsubchild.can_edit">
+                                                                            <textarea class="form-control mt-2" t-att-class="!this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${subsubchild.id}-${subsubchild.code}`]" t-att-disabled="!this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                        </t>
+                                                                        <div class="d-flex gap-2">
+                                                                            <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(subsubchild)">บันทึก</button>
+                                                                            <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${subsubchild.id}-${subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(subsubchild)">ยกเลิก</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <t t-if="subsubchild.plan_line">
+                                                                        <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${subsubchild.plan_line.id}-${subsubchild.id}`] || subsubchild.plan_line.amount" t-att-disabled="!subsubchild.can_edit" t-on-blur="() => onBlurSavePlan(subsubchild)" />
+                                                                    </t>
+                                                                    <t t-else="">
+                                                                        <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${subsubchild.code}-${subsubchild.id}`]" t-att-disabled="!subsubchild.can_edit" t-on-blur="() => onBlurSaveCreate(subsubchild)" />
+                                                                    </t>
+                                                                </td>
+                                                            </tr>
+
+                                                            <!-- child 5 -->
+                                                            <t t-foreach="state.budget_template_line.budget_template_merge" t-as="sub_subsubchild" t-key="sub_subsubchild.id">
+                                                                <t t-if="sub_subsubchild.parent_id and sub_subsubchild.parent_id[0] == subsubchild.id">
+                                                                    <tr>
+                                                                        <td class="fw-semibold text-center">
+                                                                            <t t-esc="sub_subsubchild.code" />
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="d-flex gap-2 align-items-center">
+                                                                                <span class="fw-semibold" style="padding-left: 120px;">
+                                                                                    <t t-esc="sub_subsubchild.name" />
+                                                                                </span>
+                                                                                <i t-on-click="() => this.toggleNote(sub_subsubchild)" t-if="sub_subsubchild.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+                                                                            </div>
+                                                                            <div style="padding-left: 120px;">
+                                                                                <t t-if="sub_subsubchild.plan_line and sub_subsubchild.can_edit">
+                                                                                    <textarea class="form-control mt-2" t-att-class="!sub_subsubchild.plan_line.note and !this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${sub_subsubchild.plan_line.id}-${sub_subsubchild.id}`]" t-att-disabled="!this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_note[`${sub_subsubchild.plan_line.id}-${sub_subsubchild.id}`] || sub_subsubchild.plan_line.note" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                                </t>
+                                                                                <t t-elif="sub_subsubchild.can_edit">
+                                                                                    <textarea class="form-control mt-2" t-att-class="!this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`] ? 'd-none' : ''" t-model="this.state.budget_plan_line.budget_plan_line_note[`${sub_subsubchild.id}-${sub_subsubchild.code}`]" t-att-disabled="!this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`]" placeholder="รายละเอียด" style="height: 70px; width: 400px;"></textarea>
+                                                                                </t>
+                                                                                <div class="d-flex gap-2">
+                                                                                    <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(sub_subsubchild)">บันทึก</button>
+                                                                                    <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${sub_subsubchild.id}-${sub_subsubchild.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(sub_subsubchild)">ยกเลิก</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <t t-if="sub_subsubchild.plan_line">
+                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${sub_subsubchild.plan_line.id}-${sub_subsubchild.id}`]" t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${sub_subsubchild.plan_line.id}-${sub_subsubchild.id}`] || sub_subsubchild.plan_line.amount" t-att-disabled="!sub_subsubchild.can_edit" t-on-blur="() => onBlurSavePlan(sub_subsubchild)" />
+                                                                            </t>
+                                                                            <t t-else="">
+                                                                                <input type="number" class="form-control text-end" t-model="this.state.budget_plan_line.budget_plan_line_amount[`${sub_subsubchild.code}-${sub_subsubchild.id}`]" t-att-disabled="!sub_subsubchild.can_edit" t-on-blur="() => onBlurSaveCreate(sub_subsubchild)" />
+                                                                            </t>
+                                                                        </td>
+                                                                    </tr>
+                                                                </t>
+                                                            </t>
+                                                        </t>
+                                                    </t>
+
+                                                </t>
+                                            </t>
+
+                                        </t>
+                                    </t>
+
+                                </t>
+                            </t>
+                        </tbody>
+                    </table> 
+                </div>
+            </div>
         </div>
     </t>
 </templates>
