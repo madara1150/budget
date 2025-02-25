@@ -6,13 +6,20 @@
     Component,
     useState,
     onWillStart,
-    onMounted,
-    useEffect,
   } from "@odoo/owl";
+import { Budget_control_panel } from "../budget_control_panel/budget_control_panel"
+import { NoteEditor } from "../note_editor/note_editor"
 
   export class Revenue_budget extends Component {
 
     setup() {
+        this.controlPanelDisplay = {
+            "top-right": false,
+            "bottom-right": false,
+        };
+        this.env.config.viewSwitcherEntries = [];
+
+
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({
@@ -55,6 +62,12 @@
             await this.generateState()
         });
       }
+
+      onNoteSaved(ev) {
+        const { id, value } = ev.detail;
+        console.log(`Note saved for ${id}: ${value}`);
+        // อัปเดตค่าของ note ใน parent state ได้ตามต้องการ
+    }
 
       async sumTotal(){
         const totalFeeSumBachelor = this.state.tuition_fee.tuition_fee_data.filter(data => data.class_fee_type[1] === "ปริญญาตรี" || data.class_fee_type[1] == "ปริญญาตรี4+1").reduce((sum, data) => sum + data.total_fee, 0);
@@ -203,5 +216,6 @@
 
       
   }
-  Revenue_budget.template = "budget.Revenue_budget"
+  Revenue_budget.template = "budget.revenue_budget"
+  Revenue_budget.components = { Budget_control_panel,NoteEditor }
   registry.category("actions").add("revenue_budget", Revenue_budget);

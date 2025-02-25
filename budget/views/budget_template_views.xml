@@ -33,7 +33,7 @@
                         <button name="action_open_edit_budet"
                                 type="object"
                                 class="btn btn-primary"
-                                string="แก้ไขข้อมูล"/>
+                                string="edit"/>
                     </div>
                     <notebook>
                         <page name="line_ids" string="Budget Indicators">
