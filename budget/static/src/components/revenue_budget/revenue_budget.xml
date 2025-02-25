@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
-    <t t-name="budget.Revenue_budget" owl="1">
+    <t t-name="budget.revenue_budget" owl="1">
+        <Budget_control_panel />
+        
         <div class="container-xxl full-height-scroll" style="min-height: 90vh;">
             <div class="col-12 mt-5">
 
@@ -108,7 +110,7 @@
                                                             <span><t t-esc="subchild.code" /></span>
                                                         </td>
                                                         <td>
-                                                            <div class="d-flex gap-2 align-items-center">
+                                                            <!-- <div class="d-flex gap-2 align-items-center">
                                                                 <span class="fw-semibold" style="padding-left: 60px;">
                                                                     <t t-esc="subchild.name" />
                                                                 </span>
@@ -125,7 +127,8 @@
                                                                     <button class="btn btn-success mt-2" t-att-class="!this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-on-click="() => saveDataNote(subchild)">บันทึก</button>
                                                                     <button class="btn btn-danger mt-2" t-att-class="!this.state.toggle.note[`${subchild.id}-${subchild.code}`] ? 'd-none' : ''" t-on-click="() => resetDataNote(subchild)">ยกเลิก</button>
                                                                 </div>
-                                                            </div>
+                                                            </div> -->
+                                                            <NoteEditor subchild="subchild" note="subchild.plan_line ? subchild.plan_line.note : ''"/>
                                                         </td>
                                                         <td>
                                                             <t t-if="subchild.plan_line">

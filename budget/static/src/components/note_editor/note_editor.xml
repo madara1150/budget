@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget.NoteEditor" owl="1">
+        <div class="d-flex gap-2 align-items-center">
+            <span class="fw-semibold" style="padding-left: 60px;">
+                <t t-esc="props.subchild.name" />
+            </span>
+            <i t-on-click="toggleNote" t-if="props.subchild.can_edit" class="fa fa-edit cursor-pointer fa-lg"></i>
+        </div>
+        <div style="padding-left: 60px;">
+            <textarea class="form-control mt-2" 
+                      t-att-class="!state.toggle ? 'd-none' : ''" 
+                      t-model="state.noteValue" 
+                      placeholder="รายละเอียด" 
+                      style="height: 70px; width: 400px;">
+            </textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success mt-2" 
+                        t-att-class="!state.toggle ? 'd-none' : ''" 
+                        t-on-click="saveNote">บันทึก</button>
+                <button class="btn btn-danger mt-2" 
+                        t-att-class="!state.toggle ? 'd-none' : ''" 
+                        t-on-click="resetNote">ยกเลิก</button>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,5 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_tuition_fee_manager,tuition_fee_manager,model_tuition_fee,,1,1,1,1
+access_education_semester_manager,education_semester_manager,model_education_semester,,1,1,1,1
+access_education_level_manager,education_level_manager,model_education_level,,1,1,1,1
+access_education_program_manager,education_program_manager,model_education_program,,1,1,1,1

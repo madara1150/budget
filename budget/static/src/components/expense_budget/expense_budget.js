@@ -9,30 +9,36 @@ import {
   onMounted,
   useEffect,
 } from "@odoo/owl";
+import { Budget_control_panel } from "../budget_control_panel/budget_control_panel"
 
-export class Edit_budget extends Component {
+export class Expense_budget extends Component {
   setup() {
     this.orm = useService("orm");
     this.action = useService("action");
     this.state = useState({
       activity: {
         activity_active_name: "",
-      },
-      budget: {
-        budget_template_id: 0,
-        budget_plan_id: 0,
-        budget_template_name: "",
-        plan: 0,
-        plan_name:"",
-        load: false,
+        activity_list:[],
         select_activity:0
       },
+      load:{
+        loading:false
+      },
       capital:{
-        capital_expenditure_list:[]
+        capital_expenditure_list:[],
+        capital_id:0,
+        name:'',
+        expected_purchase_date:"",
+        payment_plan:"single",
+        note: "",
+        amount:0,
+
       },
       budget_template: {
+        budget_template_id:0,
         budget_template_line_list: [],
         budget_template_line_data_list: [],
+        budget_template_name:"",
       },
       budget_salary_amount: {},
       budget_salary_note: {},
@@ -41,17 +47,12 @@ export class Edit_budget extends Component {
         budget_fund: [],
         budget_activity: [],
         budget_plan_line_list: [],
-        budget_plan_line_modal:[]
+        budget_plan_line_modal:[],
+        budget_plan_line_id:0,
+        budget_plan:0,
+        plan_name:"",
+        budget_plan_id:0,
       },
-      capital_form:{
-        capital_id: 0,
-        name: "",
-        expected_purchase_date: "",
-        payment_plan: "single",
-        note: "",
-        amount: 0,
-        budget_plan_line_id: 0
-      }
     });
 
     onWillStart(async () => {
@@ -69,10 +70,10 @@ export class Edit_budget extends Component {
   // ทำหน้าแสดง loading
   loadingToggle = async (name, id_active) => {
     this.state.activity.activity_active_name = name;
-    this.state.budget.select_activity = id_active.id
-    this.state.budget.load = true;
+    this.state.activity.select_activity = id_active.id
+    this.state.load.loading = true;
     setTimeout(async () => {
-      this.state.budget.load = false;
+      this.state.load.loading = false;
       await this.fetchData();
     }, 1000);
     await this.fetchData();
@@ -83,10 +84,10 @@ export class Edit_budget extends Component {
     await this.fetchData();
     const budget_template_lines = await this.orm.searchRead(
       "budget.template.line",
-      [["id", "=", this.state.budget.plan]],
+      [["id", "=", this.state.budget_plan.budget_plan]],
       [],
     );
-    this.state.budget.plan_name = budget_template_lines[0].name
+    this.state.budget_plan.plan_name = budget_template_lines[0].name
 
   }
 
@@ -113,9 +114,9 @@ export class Edit_budget extends Component {
     if(this.state.budget_salary_note[`${fund}-${pos.code}`]){
       await this.orm.create("budget.plan.line", [
         {
-          plan_id: this.state.budget.budget_plan_id,
+          plan_id: this.state.budget_plan.budget_plan_id,
           note: this.state.budget_salary_note[`${fund}-${pos.code}`],
-          activity_analytic_id: this.state.budget.select_activity,
+          activity_analytic_id: this.state.activity.select_activity,
           fund_analytic_id: fund,
           template_line_id: pos.id,
           amount: this.state.budget_salary_amount[`${pos.code}-${pos.id}`],
@@ -152,9 +153,9 @@ export class Edit_budget extends Component {
   onBlurSaveCreate = async (pos, fund) => {
     await this.orm.create("budget.plan.line", [
       {
-        plan_id: this.state.budget.budget_plan_id,
+        plan_id: this.state.budget_plan.budget_plan_id,
         note: this.state.budget_salary_note[`${pos.code}-${pos.id}`],
-        activity_analytic_id: this.state.budget.select_activity,
+        activity_analytic_id: this.state.activity.select_activity,
         fund_analytic_id: fund,
         template_line_id: pos.id,
         amount: this.state.budget_salary_amount[`${pos.code}-${pos.id}`],
@@ -168,19 +169,19 @@ export class Edit_budget extends Component {
   async modalCapital(capital) {
     if(capital.plan_line){
       this.state.budget_plan.budget_plan_line_modal = capital.capital_expenditures
-      this.state.capital_form.budget_plan_line_id = capital.plan_line.id;
+      this.state.budget_plan.budget_plan_line_id = capital.plan_line.id;
     }
   }
 
   // กดแก้ไขข้อมูล Modal ที่เป็น capital
   async openEditCapital(capital) {
-    this.state.capital_form.capital = capital.id;
-    this.state.capital_form.name = capital.name;
-    this.state.capital_form.expected_purchase_date =
+    this.state.capital.capital_id = capital.id;
+    this.state.capital.name = capital.name;
+    this.state.capital.expected_purchase_date =
     capital.expected_purchase_date;
-    this.state.capital_form.payment_plan = capital.payment_plan;
-    this.state.capital_form.amount = capital.amount;
-    this.state.capital_form.note = capital.note;
+    this.state.capital.payment_plan = capital.payment_plan;
+    this.state.capital.amount = capital.amount;
+    this.state.capital.note = capital.note;
   }
 
   // ลบ Capital ใน Modal
@@ -196,26 +197,26 @@ export class Edit_budget extends Component {
 
   // reset form เพื่อสร้างข้อมูลใหม่ Capital
   async resetFormEdit() {
-    this.state.capital_form.capital = 0;
-    this.state.capital_form.name = "";
-    this.state.capital_form.expected_purchase_date = "";
-    this.state.capital_form.payment_plan = "single";
-    this.state.capital_form.amount = 0;
-    this.state.capital_form.note = "";
+    this.state.capital.capital_id = 0;
+    this.state.capital.name = "";
+    this.state.capital.expected_purchase_date = "";
+    this.state.capital.payment_plan = "single";
+    this.state.capital.amount = 0;
+    this.state.capital.note = "";
   }
 
   // สร้าง capital ใหม่
   async saveCapital() {
-    if(this.state.capital_form.budget_plan_line_id){
+    if(this.state.budget_plan.budget_plan_line_id){
       const data = await this.orm.create("capital.expenditure", [
         {
-          name: this.state.capital_form.name,
+          name: this.state.capital.name,
           expected_purchase_date:
-            this.state.capital_form.expected_purchase_date,
-          amount: this.state.capital_form.amount,
-          note: this.state.capital_form.note,
+            this.state.capital.expected_purchase_date,
+          amount: this.state.capital.amount,
+          note: this.state.capital.note,
           budget_plan_line_id:
-            this.state.capital_form.budget_plan_line_id,
+            this.state.budget_plan.budget_plan_line_id,
           payment: "single",
         },
       ]);
@@ -228,13 +229,12 @@ export class Edit_budget extends Component {
   async saveEditCapital() {
     await this.orm.write(
       "capital.expenditure",
-      [this.state.capital_form.capital],
+      [this.state.capital.capital_id],
       {
-        name: this.state.capital_form.name,
-        expected_purchase_date:
-          this.state.capital_form.expected_purchase_date,
-        amount: this.state.capital_form.amount,
-        note: this.state.capital_form.note,
+        name: this.state.capital.name,
+        expected_purchase_date:this.state.capital.expected_purchase_date,
+        amount: this.state.capital.amount,
+        note: this.state.capital.note,
       }
     );
     await this.fetchData();
@@ -248,7 +248,7 @@ export class Edit_budget extends Component {
       "get_id",
       []
     );
-    this.state.budget.budget_template_id = budget_template_id;
+    this.state.budget_template.budget_template_id = budget_template_id;
 
     // หากิจกรรม
     const plan_activity_id = await this.orm.searchRead(
@@ -261,7 +261,7 @@ export class Edit_budget extends Component {
       [["plan_id", "=", plan_activity_id[0].id]],
       []
     );
-    this.state.budget_plan.budget_activity = plan_activity;
+    this.state.activity.activity_list = plan_activity;
 
     // หากองทุน
     const plan_fund_id = await this.orm.searchRead(
@@ -282,10 +282,10 @@ export class Edit_budget extends Component {
     // หา budget_template
     const budget_template = await this.orm.searchRead(
       "budget.template",
-      [["id", "=", this.state.budget.budget_template_id]],
+      [["id", "=", this.state.budget_template.budget_template_id]],
       []
     );
-    this.state.budget.budget_template_name = budget_template[0].name;
+    this.state.budget_template.budget_template_name = budget_template[0].name;
     this.state.budget_template.budget_template_line_list =
       budget_template[0].line_ids;
 
@@ -302,15 +302,15 @@ export class Edit_budget extends Component {
     // หา budget plan id 
     const budget_plan_id = await this.orm.searchRead(
       "budget.plan",
-      [["template_id", "=", this.state.budget.budget_template_id]],
+      [["template_id", "=", this.state.budget_template.budget_template_id]],
       []
     );
-    this.state.budget.budget_plan_id = budget_plan_id[0].id;
+    this.state.budget_plan.budget_plan_id = budget_plan_id[0].id;
 
     // หา budget plan line id
     const budget_plan_line_id = await this.orm.searchRead(
       "budget.plan.line",
-      [["plan_id", "=", this.state.budget.budget_plan_id]],
+      [["plan_id", "=", this.state.budget_plan.budget_plan_id]],
       []
     );
     this.state.budget_plan.budget_plan_line_list = budget_plan_line_id;
@@ -348,6 +348,6 @@ export class Edit_budget extends Component {
   }
 }
 
-Edit_budget.template = "budget.Edit_budget";
-
-registry.category("actions").add("edit_budget", Edit_budget);
+Expense_budget.template = "budget.expense_budget";
+Expense_budget.components = { Budget_control_panel }
+registry.category("actions").add("expense_budget", Expense_budget);

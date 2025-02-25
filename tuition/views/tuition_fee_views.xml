@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_tuition_fee_tree" model="ir.ui.view">
+        <field name="name">view.tuition.fee.tree</field>
+        <field name="model">tuition.fee</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="semester" />
+                <field name="faculty_name"/>
+                <field name="program_name"/>
+                <field name="class_fee_type"/>
+                <field name="academic_year" />
+                <field name="total_fee"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_tuition_fee_form" model="ir.ui.view">
+        <field name="name">view.tuition.fee.form</field>
+        <field name="model">tuition.fee</field>
+        <field name="arch" type="xml">
+            <form string="Tuition Fee">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="faculty_name"/>
+                        <h1>
+                            <field name="faculty_name" placeholder="คณะ"/>
+                        </h1>
+                    </div>
+                     <group>
+                        <group class="o_half">
+                            <field name="program_name"/>
+                            <field name="semester" />
+                            <field name="class_fee_type"/>
+                            <field name="academic_year" />
+                        </group>
+                        <group class="o_half">
+                            <field name="tuition_fee"/>
+                            <field name="student_count"/>
+                            <field name="total_fee"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tuition_fee" model="ir.actions.act_window">
+        <field name="name">Tuition Fee</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">tuition.fee</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                There is no examples click here to add new Tuition Fee.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+            id="tuition_fee_menu_action"
+            name="Tuition Fee"
+            action="action_tuition_fee"
+            parent="budget.budget_config_menu"
+            />
+
+</odoo>

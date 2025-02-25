@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_mrp_bom_form_inherit" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='company_id']/../.." position="after">
+                <group>
+                    <group class="o_half">
+                        <field name="budget_type"/>
+                    </group>
+                    <group class="o_half">
+                        <button class="btn btn-primary" name="action_budget_plan" string="Budget" type="object" attrs="{'invisible': [('budget_type', '!=', 'budget')]}"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Budget Plan">
+                    <field name="budget_plan_result" widget="budget" readonly="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

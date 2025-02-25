@@ -66,12 +66,14 @@ class BudgetTemplate(models.Model):
         if self.budget_type == "expense":
             return {
                 "type": "ir.actions.client",
-                "tag": "edit_budget",
+                "name": "Expense Budget",
+                "tag": "expense_budget",
             }
 
         if self.budget_type == "revenue":
             return {
                 "type": "ir.actions.client",
+                "name": "Revenue Budget",
                 "tag": "revenue_budget",
             }
 
