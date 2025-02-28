@@ -9,12 +9,17 @@
     "data": [
         "views/budget_template_views.xml",
         "views/budget_menus.xml",
+        "views/budget_appropriation_views.xml",
+        "views/budget_commitment_views.xml",
+        "views/budget_move_views.xml",
         "security/ir.model.access.csv",
     ],
     "demo": [
         "demo/account.fiscal.year.csv",
         "demo/budget.template.csv",
         "demo/budget.template.line.csv",
+        "demo/budget.appropriation.csv",
+        "demo/budget.appropriation.line.csv",
     ],
     "assets": {
         "web.assets_backend": ["budget/static/src/**/*"],

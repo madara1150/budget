@@ -1,12 +1,12 @@
 /** @odoo-module **/
 
-  import { registry } from "@web/core/registry";
-  import { useService } from "@web/core/utils/hooks";
-  import {
-    Component,
-    useState,
-    onWillStart,
-  } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import {
+  Component,
+  useState,
+  onWillStart,
+} from "@odoo/owl";
 import { Budget_control_panel } from "../budget_control_panel/budget_control_panel"
 import { NoteEditor } from "../note_editor/note_editor"
 
@@ -19,7 +19,6 @@ import { NoteEditor } from "../note_editor/note_editor"
         };
         this.env.config.viewSwitcherEntries = [];
 
-
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({
@@ -28,6 +27,7 @@ import { NoteEditor } from "../note_editor/note_editor"
                 budget_plan_department_name:"",
                 budget_plan_merge:[]
             },
+            noteValue:"",
             budget_plan_line:{
                 budget_plan_line_data:[],
                 budget_plan_line_amount:{},
@@ -63,10 +63,23 @@ import { NoteEditor } from "../note_editor/note_editor"
         });
       }
 
-      onNoteSaved(ev) {
-        const { id, value } = ev.detail;
-        console.log(`Note saved for ${id}: ${value}`);
-        // อัปเดตค่าของ note ใน parent state ได้ตามต้องการ
+      updateNote = async (note, data) =>{
+        if(!data.plan_line){
+          await this.orm.create("budget.plan.line", [
+            {
+              plan_id: this.state.budget_plan.budget_plan_data.id,
+              note: note,
+              template_line_id: data.id,
+            },
+          ]);
+        }
+        else{
+          await this.orm.write("budget.plan.line", [data.plan_line.id], {
+            note: note,
+          });
+        }
+        await this.fetchData();
+        await this.generateState()
     }
 
       async sumTotal(){
@@ -110,39 +123,6 @@ import { NoteEditor } from "../note_editor/note_editor"
         this.state.toggle.note[key] = !this.state.toggle.note[key];
       }
 
-      saveDataNote = async (pos) => {
-        if(this.state.budget_plan_line.budget_plan_line_note[`${pos.id}-${pos.code}`]){
-          await this.orm.create("budget.plan.line", [
-            {
-              plan_id: this.state.budget_plan.budget_plan_data.id,
-              note: this.state.budget_plan_line.budget_plan_line_note[`${pos.id}-${pos.code}`],
-              template_line_id: pos.id,
-            },
-          ]);
-        }
-        else{
-          await this.orm.write("budget.plan.line", [pos.plan_line.id], {
-            note: this.state.budget_plan_line.budget_plan_line_note[`${pos.plan_line.id}-${pos.id}`],
-          });
-        }
-        
-        this.state.toggle.note[`${pos.id}-${pos.code}`] = !this.state.toggle.note[`${pos.id}-${pos.code}`];
-        await this.fetchData();
-        await this.generateState()
-      };
-
-      resetDataNote = (pos) => {
-        if(pos.plan_line){
-            this.state.budget_plan_line.budget_plan_line_note[`${pos.plan_line.id}-${pos.id}`] = pos.plan_line.note;
-        }
-        else{
-            this.state.budget_plan_line.budget_plan_line_note[`${pos.id}-${pos.code}`] = ""
-        }
-        
-        this.state.toggle.note[`${pos.id}-${pos.code}`] =
-          !this.state.toggle.note[`${pos.id}-${pos.code}`];
-      };
-
       onBlurSavePlan = async (pos) => {
         await this.orm.write("budget.plan.line", [pos.plan_line.id], {
           amount: this.state.budget_plan_line.budget_plan_line_amount[`${pos.plan_line.id}-${pos.id}`],
@@ -165,7 +145,7 @@ import { NoteEditor } from "../note_editor/note_editor"
 
       async fetchData() {
         const budget_template_id = await this.orm.call(
-            "budget.template",
+            "budget.plan",
             "get_id",
             []
         );
@@ -196,7 +176,7 @@ import { NoteEditor } from "../note_editor/note_editor"
         const budget_template_line_data = await this.orm.searchRead(
             'budget.template.line',
             [["id", "=", this.state.budget_template.budget_template_data.line_ids]],
-            ["id", "name", "code", "parent_id", "child_ids"]
+            ["id", "name", "code", "parent_id", "child_ids", "hierarchy_level", "fund_analytic_ids"]
         )
         const budget_template_line_can_edit = budget_template_line_data.map(item => ({
             ...item,
@@ -214,8 +194,7 @@ import { NoteEditor } from "../note_editor/note_editor"
         await this.mergeData();
       }
 
-      
   }
-  Revenue_budget.template = "budget.revenue_budget"
+  Revenue_budget.template = "budget_plan.revenue_budget"
   Revenue_budget.components = { Budget_control_panel,NoteEditor }
   registry.category("actions").add("revenue_budget", Revenue_budget);
