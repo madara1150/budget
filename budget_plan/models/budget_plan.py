@@ -101,9 +101,5 @@ class BudgetPlanLine(models.Model):
         required=True,
     )
     amount = fields.Float(tracking=True)
-    note = fields.Text(string="Note")
-    capital_expenditure_ids = fields.One2many(
-        "capital.expenditure", "budget_plan_line_id", string="Capital Expenditure Plans"
-    )
     department_analytic_id = fields.Many2one(related="plan_id.department_analytic_id")
     source_analytic_id = fields.Many2one(related="plan_id.source_analytic_id")

@@ -62,3 +62,19 @@ tr.slide-up {
 .blink-text {
     animation: blink 2s infinite;
 }
+
+.o_budget_template_expense_page {
+    max-height: calc(85vh);
+    overflow-y: auto;
+}
+
+.table-header {
+    top: 0;
+    background-color: white;
+    z-index: 10;
+}
+
+.o_budget_template_expense_expandable{
+    
+}
+
