@@ -13,14 +13,17 @@
                         <field name="budget_type"/>
                     </group>
                     <group class="o_half">
-                        <button class="btn btn-primary" name="action_budget_plan" string="Budget" type="object" attrs="{'invisible': [('budget_type', '!=', 'budget')]}"/>
+                        <button class="btn btn-primary" 
+                            name="action_budget_plan" 
+                            string="Budget" type="object" 
+                            attrs="{'invisible': [('budget_type', '!=', 'budget')]}"/>
                     </group>
                 </group>
             </xpath>
 
             <xpath expr="//notebook" position="inside">
                 <page string="Budget Plan">
-                    <field name="budget_plan_result" widget="budget" readonly="1"/>
+                    <field name="final_data" widget="budget" readonly="1"/>
                 </page>
             </xpath>
         </field>

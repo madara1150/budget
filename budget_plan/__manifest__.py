@@ -9,7 +9,6 @@
     "data": [
         "views/budget_plan_views.xml",
         "security/ir.model.access.csv",
-        "views/capital_expenditure_views.xml",
     ],
     "application": False,
     "installable": True,

@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
     <t t-name="manufacturing_budget.Budget_field" owl="1">
-        <span t-esc="props.value" /><span>Hello</span>
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>กองทุน</th>
+                    <th>ชื่อ</th>
+                    <th>จำนวนเงิน</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="state.data" t-as="line" t-key="line.template_line_id">
+                    <td class="fw-bold text-center">
+                        <t t-esc="line.fund_analytic_id" />
+                    </td>
+                    <td class="fw-bold text-center">
+                        <t t-esc="line.name" />
+                    </td>
+                    <td class="fw-bold text-center">
+                        <t t-esc="line.amount" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </t>
 </templates>

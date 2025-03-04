@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget_plan.expense_budget" owl="1">
+        <Budget_control_panel />
+        <div class="o_content">
+            <div class="o_budget_template_expense_page py-4 px-0 overflow-auto border-bottom bg-view">
+                <div class="container-fluid">
+
+                    <div class="text-center">
+                        <div class="mt-3">
+                            <h5><span t-esc="state.budget_template.budget_template_name" /></h5>
+                            <h5>สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</h5>
+                        </div>  
+                    </div>
+
+                        <!-- กิจกรรม  -->
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr class="bg-head">
+                                <th class="text-center" style="width: 150px"><i t-on-click="() =>this.toggleRotate('all_activity')" t-att-class="state.rotated.all_activity ? 'rotated' : ''" class="fa cursor-pointer fa-chevron-down" style="font-size:15px;transition: transform 0.3s;"></i></th>
+                                <th></th>
+                                <th>จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="!state.rotated.all_activity" t-foreach="state.activity.activity_list" t-as="activity" t-key="activity.id">
+                                <tr t-att-class="activity.hierarchy_level == 0 ? 'bg-fund' : ''">
+                                    <td class="fw-bold text-center">
+                                        <t t-esc="activity.code" />
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold d-flex gap-2" t-attf-style="margin-left: {{ activity.hierarchy_level * 24 }}px;">
+                                            <span t-att-class="state.activity.select_activity == activity.id ? 'blink-text text-danger' : 'fw-semibold'" >
+                                                <t t-esc="activity.name" />
+                                            </span>
+                                            <i  t-if="activity.hierarchy_level > 2"
+                                                t-att-class="state.activity.select_activity == activity.id ? 'fa fa-edit cursor-pointer fa-lg blink-text text-danger' : 'fa fa-edit cursor-pointer fa-lg'" 
+                                                t-on-click="() => this.loadingToggle(activity.name ,activity)"></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control text-end" value="0" readonly="0" />
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table> 
+
+                    <div class="mt-3">
+                        <t t-if="state.activity.activity_active_name">
+                            <h4 class="text-danger blink-text">คุณกำลังทำรายการ <span t-esc="state.activity.activity_active_name" /></h4>
+                        </t>
+                        <t t-if="!state.activity.activity_active_name">
+                            <h4 class="text-danger blink-text">กรุณาเลือกกิจกรรม</h4>
+                        </t>
+                    </div>
+
+                    <div class="text-center" t-if="1 or state.activity.activity_active_name"> 
+                        <div class="d-flex col-6 mt-3">
+                            <span style="width: 150px">งบประมาณ : </span>
+                            <select class="form-select" aria-label="กรุณาเลือกงบประมาณ..." t-model="state.budget_plan.budget_plan">
+                                <option value="0">กรุณาเลือกงบ...</option>
+                                <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="plan" t-key="plan.id">
+                                    <t t-if="!plan.parent_id">
+                                        <option t-att-value="plan.id" t-esc="plan.name" />
+                                    </t>
+                                    
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+
+                    <t t-if="state.load.loading">
+                        <div class="d-flex justify-content-center mt-5">
+                            <div class="loader"></div>
+                        </div>
+                    </t>
+
+                    <table t-if="!state.load.loading and state.activity.activity_active_name" class="o_budget_template_expense_expandable table table-bordered table-sm mt-3">
+                        <thead class="table-header">
+                                <tr class="bg-head">
+                                    <th></th>
+                                    <th></th>
+                                    <th>จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body">
+                                <t t-foreach="state.budget_template.budget_template_line_data_list" t-as="template" t-key="template.id">
+                                    <tr t-if="template.root_parent == state.budget_plan.budget_plan and template.root_parent != 193">
+                                        <td class="fw-semibold text-center">
+                                            <t t-esc="template.code" />
+                                        </td>
+                                        <td>
+                                            <NoteEditor data="template" updateNote="updateNote" />
+                                        </td>
+                                        <td>
+                                            <t t-if="template.plan_line">
+                                                <input type="number" class="form-control text-end" 
+                                                    t-model="this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`]" 
+                                                    t-att-value="this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`] || template.plan_line.amount"
+                                                    t-att-disabled="!template.can_edit"  
+                                                    t-on-blur="() => onBlurSavePlan(template)" />
+                                            </t>
+                                            <t t-else="">
+                                                <input type="number" class="form-control text-end" 
+                                                    t-model="this.state.budget_plan_line.budget_salary_amount[`${template.code}-${template.id}`]" 
+                                                    t-att-disabled="!template.can_edit" 
+                                                    t-on-blur="() => onBlurSaveCreate(template)" />
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr t-elif="state.budget_plan.budget_plan == 193 and template.root_parent == 193">
+                                        <td class="fw-semibold text-center">
+                                            <t t-esc="template.code" />
+                                        </td>
+                                         <td>
+                                            <span class="fw-semibold d-flex gap-2" t-attf-style="margin-left: {{ template.level * 24 }}px;">
+                                                <t t-esc="template.name" />
+                                                <i data-bs-toggle="modal" data-bs-target="#capital_tree" 
+                                                    t-on-click="() => this.modalCapital(template)"
+                                                    t-att-class="template.can_edit ? '' : 'd-none'"    
+                                                    class="fa fa-edit cursor-pointer fa-lg"></i>
+                                            </span>
+                                            <t t-if="template.capital_expenditures">
+                                                <t t-foreach="template.capital_expenditures" t-as="capital" t-key="capital.id">
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <span class="fw-semibold" t-attf-style="margin-left: {{ template.level * 24 }}px;">
+                                                            - <t t-esc="capital.name" />
+                                                        </span>
+                                                    </div>
+                                                </t>
+                                            </t>
+                                        </td>
+                                        <td>
+                                            <t t-if="template.plan_line">
+                                                <input type="number" class="form-control text-end" 
+                                                    t-model="this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`]" 
+                                                    t-att-value="this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`] || template.plan_line.amount"
+                                                    t-att-disabled="!template.can_edit"  
+                                                    t-on-blur="() => onBlurSavePlan(template)" />
+                                            </t>
+                                            <t t-else="">
+                                                <input type="number" class="form-control text-end" 
+                                                    t-model="this.state.budget_plan_line.budget_salary_amount[`${template.code}-${template.id}`]" 
+                                                    t-att-disabled="!template.can_edit" 
+                                                    t-on-blur="() => onBlurSaveCreate(template)" />
+                                            </t>
+                                        </td>
+                                    </tr>
+
+                                <!-- modal -->
+                                    <div class="modal fade" id="capital_tree" tabindex="-1" aria-labelledby="Modal_tree" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">แผนการจัดซื้อจัดจ้าง</h1>
+                                                <button type="button" class="btn-close" 
+                                                    data-bs-dismiss="modal" 
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr class="bg-head">
+                                                            <th>รายการ</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                        <t t-if="state.budget_plan.budget_plan_line_modal">
+                                                            <t t-foreach="state.budget_plan.budget_plan_line_modal" t-as="capital" t-key="capital.id">
+                                                                <tr class="record-row">
+                                                                    <td  t-on-click="() => this.openModal('edit',capital)">
+                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                            <span t-esc="capital.name" />
+                                                                        </div>
+                                                                    </td>
+                                                                    <td style="width:20px;">
+                                                                        <i class="fa fa-trash cursor-pointer fa-lg text-danger" 
+                                                                            data-bs-dismiss="modal" 
+                                                                            t-on-click="() => this.deleteCapital(capital)">
+                                                                        </i>
+                                                                    </td>
+                                                                </tr>
+                                                            </t>
+                                                        </t>
+                                                </table>
+                                            </div>
+                                            <div class="modal-footer gap-2 d-flex">
+                                                <button type="button" 
+                                                    class="btn btn-secondary" 
+                                                    data-bs-dismiss="modal">ปิด</button>
+                                                <button type="button" class="btn btn-primary" 
+                                                    t-on-click="() => this.openModal('create')">เพิ่มข้อมูล</button>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <!-- Modal เดียวสำหรับ Create / Edit -->
+                                    <div class="modal fade" id="capital_modal" tabindex="-1" aria-labelledby="capitalModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="capitalModalLabel">
+                                                        <t t-if="state.modalMode === 'edit'">แผนการจัดซื้อจัดจ้าง (แก้ไข)</t>
+                                                        <t t-else="">แผนการจัดซื้อจัดจ้าง (สร้าง)</t>
+                                                    </h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <div class="d-flex align-items-center flex-column gap-2">
+                                                        <div class="input-group align-items-center flex-nowrap">
+                                                            <span style="width:200px">ชื่อรายการ</span>
+                                                            <CharField value="state.capital.name" update="onNameChange" />
+                                                        </div>
+                                                        <div class="input-group align-items-center flex-nowrap">
+                                                            <span style="width:200px">วันที่คาดว่าจะจัดซื้อจัดจ้าง</span>
+                                                            <input type="date" class="form-control" t-model="state.capital.expected_purchase_date" />
+                                                        </div>
+                                                        <div class="input-group align-items-center flex-nowrap">
+                                                            <span style="width:200px">หมายเหตุ</span>
+                                                            <CharField value="state.capital.note" update="onNoteChange" />
+                                                        </div>
+                                                        <div class="input-group align-items-center flex-nowrap">
+                                                            <span style="width:200px">แผนการเบิกจ่าย</span>
+                                                            <select class="o_input pe-3" t-model="state.capital.payment_plan">
+                                                                <option value="single">ไม่มีการแบ่งงวด</option>
+                                                                <option value="installment">แบ่งจ่ายเป็นงวด</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="input-group align-items-center flex-nowrap">
+                                                            <span style="width:200px">จำนวนเงิน</span>
+                                                            <IntegerField value="state.capital.amount" update="onAmountChange" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer gap-2 d-flex">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                                        t-on-click="() => (state.modalMode === 'edit' ? this.saveEditCapital() : this.saveCapital())">
+                                                        <t t-if="state.modalMode === 'edit'">บันทึกการแก้ไข</t>
+                                                        <t t-else="">สร้างข้อมูล</t>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

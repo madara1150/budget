@@ -2,7 +2,6 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.http import request
 from odoo.osv import expression
 
 _logger = logging.getLogger(__name__)
@@ -58,30 +57,6 @@ class BudgetTemplate(models.Model):
                 ]
             )
         return domain
-
-    def action_open_edit_budet(self):
-        session = request.session
-        session.update({"budget_template_id": self.id})
-
-        if self.budget_type == "expense":
-            return {
-                "type": "ir.actions.client",
-                "name": "Expense Budget",
-                "tag": "expense_budget",
-            }
-
-        if self.budget_type == "revenue":
-            return {
-                "type": "ir.actions.client",
-                "name": "Revenue Budget",
-                "tag": "revenue_budget",
-            }
-
-    @api.model
-    def get_id(self):
-        session = request.session
-        budget_id = session.get("budget_template_id")
-        return budget_id or 0
 
 
 class BudgetTemplateLine(models.Model):
@@ -143,6 +118,13 @@ class BudgetTemplateLine(models.Model):
         recursive=True,
     )
 
+    fund_analytic_ids = fields.Many2many(
+        "account.analytic.account",
+        string="กองทุน",
+        help="ผูกรหัสงบประมาณกับกองทุน",
+        ondelete="restrict",
+    )
+
     _sql_constraints = [
         (
             "unique_budget_template_line",
@@ -150,6 +132,41 @@ class BudgetTemplateLine(models.Model):
             _("Budget indicator must be unique"),
         )
     ]
+
+    @api.model
+    def create(self, vals):
+        record = super(BudgetTemplateLine, self).create(vals)
+        return record
+
+    def write(self, vals):
+        # อัปเดต record และจัดการกรณีเปลี่ยน analytic_account_ids
+        res = super(BudgetTemplateLine, self).write(vals)
+        if "fund_analytic_ids" in vals:
+            # อัปเดต child_ids ด้วยค่าใหม่ของ fund_analytic_ids
+            for record in self:
+                if record.child_ids:
+                    record.child_ids.write(
+                        {"fund_analytic_ids": [(6, 0, record.fund_analytic_ids.ids)]}
+                    )
+        return res
+
+    @api.depends("parent_id", "parent_id.fund_analytic_ids")
+    def _compute_fund_accounts(self):
+        # ถ้ามี parent ให้ใช้ค่า fund_analytic_ids จาก parent
+        for record in self:
+            if record.parent_id:
+                record.fund_analytic_ids = record.parent_id.fund_analytic_ids
+            # ถ้าไม่มี parent ให้คงค่าเดิม (หรือกำหนดค่าเริ่มต้นถ้าต้องการ)
+
+    @api.onchange("fund_analytic_ids")
+    def _onchange_fund_analytic_ids(self):
+        # เมื่อเปลี่ยนแปลง fund_analytic_ids ใน parent อัปเดตไปยัง child_ids
+        _logger.info("Onchange triggered for analytic_account_ids:")
+        _logger.info(self.fund_analytic_ids.ids)
+        if self.child_ids:
+            self.child_ids.write(
+                {"fund_analytic_ids": [(6, 0, self.fund_analytic_ids.ids)]}
+            )
 
     @api.depends("parent_id.hierarchy_level")
     def _compute_hierarchy_level(self):
