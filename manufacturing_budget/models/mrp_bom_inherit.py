@@ -21,7 +21,7 @@ class MrpBomInherit(models.Model):
         default="no_budget",
         string="budget",
     )
-    budget_plan_result = fields.Char(string="Selected Budget Plan")
+    final_data = fields.Text(string="Selected Budget Plan")
 
     def action_budget_plan(self):
         """เปิด Wizard Budget Plan"""
@@ -31,5 +31,7 @@ class MrpBomInherit(models.Model):
             "res_model": "budget.plan.wizard",
             "view_mode": "form",
             "target": "new",
-            "context": {"default_budget_option": self.budget_plan_result},
+            "context": {
+                "default_mrp_bom_id": self.id,
+            },
         }

@@ -10,7 +10,8 @@
     "data": [
         "views/mrp_bom_inherit_views.xml",
         "wizards/budget_plan_wizard.xml",
-        "security/ir.model.access.csv"
+        "security/ir.model.access.csv",
+        "wizards/budget_test.xml"
     ],
     "assets": {
         "web.assets_backend": ["manufacturing_budget/static/src/**/*"],
