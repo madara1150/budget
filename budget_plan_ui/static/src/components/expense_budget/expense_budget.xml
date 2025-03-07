@@ -29,12 +29,12 @@
                                         <t t-esc="activity.code" />
                                     </td>
                                     <td>
-                                        <span class="fw-bold d-flex gap-2" t-attf-style="margin-left: {{ activity.hierarchy_level * 24 }}px;">
-                                            <span t-att-class="state.activity.select_activity == activity.id ? 'blink-text text-danger' : 'fw-semibold'" >
+                                        <span t-att-class="activity.hierarchy_level > 2 ? 'fw-medium' : 'fw-bold'" class="d-flex gap-2" t-attf-style="margin-left: {{ activity.hierarchy_level * 24 }}px;">
+                                            <span t-att-class="state.activity.select_activity == activity.id ? 'blink-text text-danger' : ''" >
                                                 <t t-esc="activity.name" />
                                             </span>
                                             <i  t-if="activity.hierarchy_level > 2"
-                                                t-att-class="state.activity.select_activity == activity.id ? 'fa fa-edit cursor-pointer fa-lg blink-text text-danger' : 'fa fa-edit cursor-pointer fa-lg'" 
+                                                t-att-class="state.activity.select_activity == activity.id ? 'fa fa-edit cursor-pointer fa-lg blink-text text-danger fw-semibold' : 'fa fa-edit cursor-pointer fa-lg fw-semibold'" 
                                                 t-on-click="() => this.loadingToggle(activity.name ,activity)"></i>
                                         </span>
                                     </td>
@@ -195,58 +195,7 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                <!-- Modal เดียวสำหรับ Create / Edit -->
-                                    <div class="modal fade" id="capital_modal" tabindex="-1" aria-labelledby="capitalModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h1 class="modal-title fs-5" id="capitalModalLabel">
-                                                        <t t-if="state.modalMode === 'edit'">แผนการจัดซื้อจัดจ้าง (แก้ไข)</t>
-                                                        <t t-else="">แผนการจัดซื้อจัดจ้าง (สร้าง)</t>
-                                                    </h1>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-
-                                                <div class="modal-body">
-                                                    <div class="d-flex align-items-center flex-column gap-2">
-                                                        <div class="input-group align-items-center flex-nowrap">
-                                                            <span style="width:200px">ชื่อรายการ</span>
-                                                            <CharField value="state.capital.name" update="onNameChange" />
-                                                        </div>
-                                                        <div class="input-group align-items-center flex-nowrap">
-                                                            <span style="width:200px">วันที่คาดว่าจะจัดซื้อจัดจ้าง</span>
-                                                            <input type="date" class="form-control" t-model="state.capital.expected_purchase_date" />
-                                                        </div>
-                                                        <div class="input-group align-items-center flex-nowrap">
-                                                            <span style="width:200px">หมายเหตุ</span>
-                                                            <CharField value="state.capital.note" update="onNoteChange" />
-                                                        </div>
-                                                        <div class="input-group align-items-center flex-nowrap">
-                                                            <span style="width:200px">แผนการเบิกจ่าย</span>
-                                                            <select class="o_input pe-3" t-model="state.capital.payment_plan">
-                                                                <option value="single">ไม่มีการแบ่งงวด</option>
-                                                                <option value="installment">แบ่งจ่ายเป็นงวด</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="input-group align-items-center flex-nowrap">
-                                                            <span style="width:200px">จำนวนเงิน</span>
-                                                            <IntegerField value="state.capital.amount" update="onAmountChange" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="modal-footer gap-2 d-flex">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                                                        t-on-click="() => (state.modalMode === 'edit' ? this.saveEditCapital() : this.saveCapital())">
-                                                        <t t-if="state.modalMode === 'edit'">บันทึกการแก้ไข</t>
-                                                        <t t-else="">สร้างข้อมูล</t>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <Create_edit_modal />
                                 </t>
                             </tbody>
                     </table>

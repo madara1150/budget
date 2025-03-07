@@ -33,7 +33,7 @@ export class Revenue_budget extends Component {
         note: {},
       },
     });
-    this.env = useEnv();  // ใช้ environment ของ Odoo
+    this.env = useEnv();
     this.env.bus.addEventListener("custom_event", this.onCustomEvent);
     onWillStart(async () => {
       await this.fetchData();
