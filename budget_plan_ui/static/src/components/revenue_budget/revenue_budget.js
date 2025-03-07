@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, useEnv, onWillUnmount } from "@odoo/owl";
 import { Budget_control_panel } from "../budget_control_panel/budget_control_panel";
 import { NoteEditor } from "../note_editor/note_editor";
 
@@ -33,12 +33,21 @@ export class Revenue_budget extends Component {
         note: {},
       },
     });
-
+    this.env = useEnv();  // ใช้ environment ของ Odoo
+    this.env.bus.addEventListener("custom_event", this.onCustomEvent);
     onWillStart(async () => {
       await this.fetchData();
       await this.mergeData();
       await this.generateState();
     });
+  }
+
+  onCustomEvent(event) {
+    console.log("Received custom event:", event.detail);
+  }
+  
+  onWillUnmount() {
+    this.env.bus.removeEventListener("custom_event", this.onCustomEvent);
   }
 
   updateNote = async (note, data) => {
@@ -74,7 +83,6 @@ export class Revenue_budget extends Component {
         }
       );
     this.state.budget_template_line.budget_template_merge = mergeData;
-    console.log(mergeData);
   }
 
   async generateState() {
