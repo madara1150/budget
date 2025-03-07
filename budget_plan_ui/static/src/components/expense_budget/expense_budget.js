@@ -2,17 +2,19 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, useEnv } from "@odoo/owl";
 import { Budget_control_panel } from "../budget_control_panel/budget_control_panel";
 import { NoteEditor } from "../note_editor/note_editor";
 import { CharField } from "@web/views/fields/char/char_field"
 import { IntegerField } from "@web/views/fields/integer/integer_field"
-import { SelectionField } from "@web/views/fields/selection/selection_field"
+import { Create_edit_modal } from "../create_edit_modal/create_edit_modal";
 
 export class Expense_budget extends Component {
   setup() {
     this.orm = useService("orm");
     this.action = useService("action");
+    this.env = useEnv();
+    this.env.bus.addEventListener("modal_event", this.onModalEvent);
     this.state = useState({
       activity: {
         activity_active_name: "",
@@ -62,26 +64,44 @@ export class Expense_budget extends Component {
       fund: "",
     });
 
-    onWillStart(async () => {
+  onWillStart(async () => {
       await this.fetchData();
       await this.generateState();
     });
   }
+formattedAmount(template) {
+    const value = this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`] || template.plan_line.amount;
+    return new Intl.NumberFormat('en-US').format(value);
+}
+
+sendEvent() {
+    this.env.bus.trigger("modal_event", { capital: this.state.capital, mode: this.state.modalMode  });
+}
+
+  onModalEvent = async (ev) => {
+    const detail = ev.detail
+    this.state.capital.capital_id = detail.capital.capital_id
+    this.state.capital.name = detail.capital.name
+    this.state.capital.expected_purchase_date = detail.capital.expected_purchase_date
+    this.state.capital.payment_plan = detail.capital.payment_plan
+    this.state.capital.note = detail.capital.note
+    this.state.capital.amount = detail.capital.amount
+    if(this.state.modalMode == "edit"){
+      await this.saveEditCapital()
+    }
+    else{
+      await this.saveCapital()
+    }
+  }
+
+
+  onWillUnmount() {
+    this.env.bus.removeEventListener("modal_event", this.onModalEvent);
+  }
+
 
   onAmountChange = (template, val) =>{
     this.state.budget_plan_line.budget_salary_amount[`${template.plan_line.id}-${template.id}`] = val;
-  }
-
-
-  onNameChange = (ev) =>{
-    this.state.capital.name = ev
-  }
-  onNoteChange = (ev) =>{
-    this.state.capital.note = ev
-  }
-
-  onAmountChange = (ev) =>{
-    this.state.capital.amount = ev
   }
 
   // งบลงทุน กดเพิ่มเพื่อเพิ่มข้อมูล
@@ -114,6 +134,7 @@ export class Expense_budget extends Component {
         amount: null,
       };
     }
+    this.sendEvent()
     $("#capital_modal").modal("show");
   }
 
@@ -180,7 +201,6 @@ export class Expense_budget extends Component {
   // กลับหัวลูกสร
   async toggleRotate(key) {
     this.state.rotated[key] = !this.state.rotated[key];
-    // await this.fetchData();
   }
 
   // ทำหน้าแสดง loading
@@ -374,26 +394,15 @@ export class Expense_budget extends Component {
     this.state.fund = budget_plan_id[0].source_analytic_id[0];
 
     // หา budget plan line id
-    const budget_plan_line_id = await this.orm.searchRead(
-      "budget.plan.line",
-      [["plan_id", "=", this.state.budget_plan.budget_plan_id]],
-      []
-    );
-    this.state.budget_plan.budget_plan_line_list = budget_plan_line_id;
+    await this.fetchBudgetPlanLines()
 
     // หา capital ทั้งหมด
-    const capital_expenditure_id = await this.orm.searchRead(
-      "capital.expenditure",
-      [],
-      []
-    );
-    this.state.capital.capital_expenditure_list = capital_expenditure_id;
-
+    await this.fetchBudgetCapital()
     await this.mergeData();
     await this.generateState();
   }
 }
 
 Expense_budget.template = "budget_plan.expense_budget";
-Expense_budget.components = { Budget_control_panel, NoteEditor, CharField, IntegerField, SelectionField};
+Expense_budget.components = { Budget_control_panel, NoteEditor, CharField, IntegerField, Create_edit_modal};
 registry.category("actions").add("expense_budget", Expense_budget);
