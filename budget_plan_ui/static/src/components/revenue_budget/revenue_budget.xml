@@ -21,17 +21,26 @@
                                 <NoteEditor data="template" updateNote="updateNote" />
                                 <td>
                                     <t t-if="template.plan_line">
-                                        <input type="number" class="form-control text-end"
+                                        <input type="text" class="form-control text-end" 
+                                                    t-model="this.state.formated.amount[`${template.plan_line.id}-${template.id}`]" 
+                                                    t-att-value="formattedAmount(this.state.budget_plan_line.budget_plan_line_amount[`${template.plan_line.id}-${template.id}`] || template.plan_line.amount)"
+                                                    t-att-disabled="!template.can_edit"  
+                                                    t-on-blur="() => onBlurSavePlan(template)" />
+                                        <!-- <input type="number" class="form-control text-end"
                                             t-model="this.state.budget_plan_line.budget_plan_line_amount[`${template.plan_line.id}-${template.id}`]" 
                                             t-att-value="this.state.budget_plan_line.budget_plan_line_amount[`${template.plan_line.id}-${template.id}`] || template.plan_line.amount" 
                                             t-att-disabled="!template.can_edit" 
-                                            t-on-blur="() => onBlurSavePlan(template)" />
+                                            t-on-blur="() => onBlurSavePlan(template)" /> -->
                                     </t>
                                     <t t-else="">
-                                        <input type="number" class="form-control text-end" 
+                                        <input type="text" class="form-control text-end" 
+                                                    t-model="this.state.formated.amount[`${template.code}-${template.id}`]" 
+                                                    t-att-disabled="!template.can_edit" 
+                                                    t-on-blur="() => onBlurSaveCreate(template)" />
+                                        <!-- <input type="number" class="form-control text-end" 
                                             t-model="this.state.budget_plan_line.budget_plan_line_amount[`${template.code}-${template.id}`]" 
                                             t-att-disabled="!template.can_edit" 
-                                            t-on-blur="() => onBlurSaveCreate(template)" />
+                                            t-on-blur="() => onBlurSaveCreate(template)" /> -->
                                     </t>
                                 </td>
                             </tr>
