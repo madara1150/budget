@@ -1,9 +1,10 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, useEnv } from "@odoo/owl";
 
 export class NoteEditor extends Component {
     setup() {
+        this.env = useEnv();
         this.state = useState({
             toggle: false,
             noteValue: this.props.data.plan_line ? 
@@ -15,6 +16,10 @@ export class NoteEditor extends Component {
     async saveNote() {
         await this.props.updateNote(this.state.noteValue, this.props.data);
         this.toggleNote()
+    }
+
+    sendEvent() {
+        this.env.bus.trigger("custom_event", { message: "Hello from AnotherComponent" });
     }
 
     toggleNote() {

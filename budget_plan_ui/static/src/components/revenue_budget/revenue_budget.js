@@ -2,7 +2,13 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState, onWillStart } from "@odoo/owl";
+import {
+  Component,
+  useState,
+  onWillStart,
+  useEnv,
+  onWillUnmount,
+} from "@odoo/owl";
 import { Budget_control_panel } from "../budget_control_panel/budget_control_panel";
 import { NoteEditor } from "../note_editor/note_editor";
 
@@ -32,13 +38,24 @@ export class Revenue_budget extends Component {
       toggle: {
         note: {},
       },
+      formated: {
+        amount: {},
+      },
     });
-
     onWillStart(async () => {
       await this.fetchData();
       await this.mergeData();
       await this.generateState();
     });
+  }
+
+  formattedAmount(value) {
+    return new Intl.NumberFormat("en-US").format(value);
+  }
+
+  parseNumber(value) {
+    if (!value) return 0;
+    return parseInt(value.toString().replace(/,/g, ""), 10) || 0;
   }
 
   updateNote = async (note, data) => {
@@ -74,7 +91,6 @@ export class Revenue_budget extends Component {
         }
       );
     this.state.budget_template_line.budget_template_merge = mergeData;
-    console.log(mergeData);
   }
 
   async generateState() {
@@ -84,6 +100,8 @@ export class Revenue_budget extends Component {
           this.state.budget_plan_line.budget_plan_line_amount[
             `${data.plan_line.id}-${data.id}`
           ] = data.plan_line.amount;
+          this.state.formated.amount[`${data.plan_line.id}-${data.id}`] =
+            this.formattedAmount(data.plan_line.amount);
           this.state.budget_plan_line.budget_plan_line_note[
             `${data.plan_line.id}-${data.id}`
           ] = data.plan_line.note;
@@ -99,13 +117,18 @@ export class Revenue_budget extends Component {
   }
 
   onBlurSavePlan = async (pos) => {
-    await this.orm.write("budget.plan.line", [pos.plan_line.id], {
+    const data = await this.orm.write("budget.plan.line", [pos.plan_line.id], {
       amount:
-        this.state.budget_plan_line.budget_plan_line_amount[
-          `${pos.plan_line.id}-${pos.id}`
-        ],
+      this.parseNumber(
+        this.state.formated.amount[`${pos.plan_line.id}-${pos.id}`]
+      ),
     });
-    await this.fetchData();
+    this.state.formated.amount[`${pos.plan_line.id}-${pos.id}`] =
+      this.formattedAmount(
+        this.state.formated.amount[`${pos.plan_line.id}-${pos.id}`]
+      );
+      await this.fetchData()
+      await this.generateState()
   };
 
   onBlurSaveCreate = async (pos) => {
@@ -114,14 +137,14 @@ export class Revenue_budget extends Component {
         plan_id: this.state.budget_plan.budget_plan_data.id,
         template_line_id: pos.id,
         amount:
-          this.state.budget_plan_line.budget_plan_line_amount[
-            `${pos.code}-${pos.id}`
-          ],
+        this.parseNumber(
+          this.state.formated.amount[`${pos.code}-${pos.id}`]
+        ),
       },
     ]);
-    await this.fetchData();
-    await this.mergeData();
-    await this.generateState();
+    this.state.formated.amount[`${pos.code}-${pos.id}`] = this.formattedAmount(
+      this.state.formated.amount[`${pos.code}-${pos.id}`]
+    );
   };
 
   async fetchData() {
