@@ -1,3 +1,3 @@
 id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
 access_budget_plan_wizard_manager,budget_plan_wizard_manager,model_budget_plan_wizard,,1,1,1,1
-access_budget_plan_wizard_line_manager,budget_plan_wizard_line_manager,model_budget_plan_wizard_line,,1,1,1,1access_budget_test_manager,budget_test_manager,model_budget_test,,1,1,1,1
+access_budget_plan_wizard_line_manager,budget_plan_wizard_line_manager,model_budget_plan_wizard_line,,1,1,1,1

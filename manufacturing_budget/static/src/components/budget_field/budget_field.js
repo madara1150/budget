@@ -11,11 +11,11 @@ export class Budget_field extends Component {
             data: []
         });
         const data_props = JSON.parse(this.props.value)
-        const filter_data = data_props.lines.filter(line => line.amount > 0.0).map(line => ({
+        const filter_data = data_props.lines ? data_props.lines.filter(line => line.amount > 0.0).map(line => ({
             ...line,
             template_id: data_props.template_id,
             fund_analytic_id: data_props.fund_analytic_id,
-          }));
+          })) : ""
         this.state.data = filter_data
         // console.log(this.props)
     }

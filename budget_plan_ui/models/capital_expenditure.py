@@ -12,7 +12,7 @@ class CapitalExpenditure(models.Model):
     _description = "แผนการจัดซื้อจัดจ้าง"
 
     name = fields.Char(string="ชื่อรายการ", required=True)
-    expected_purchase_date = fields.Date(string="วันที่คาดว่าจะจัดซื้อจัดจ้าง", required=True)
+    expected_purchase_date = fields.Date(string="วันที่คาดว่าจะจัดซื้อจัดจ้าง")
     note = fields.Text(string="หมายเหตุ")
 
     payment = fields.Selection(
