@@ -15,3 +15,7 @@
     font-size: 12px;
     text-align: right;
 }
+
+.table-sm > :not(caption) > * > *{
+    padding: 0.3rem 0.3rem;
+}

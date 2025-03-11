@@ -5,13 +5,14 @@
     "category": "KMITL/Budgeting",
     "author": "Aginix Technologies",
     "website": "https://github.com/aginix/kmitl",
-    "depends": ["account", "account_fiscal_year", "mail"],
+    "depends": ["account", "account_analytic_kmitl", "account_fiscal_year", "mail"],
     "data": [
         "views/budget_template_views.xml",
-        "views/budget_menus.xml",
+        "views/budget_move_views.xml",
         "views/budget_appropriation_views.xml",
         "views/budget_commitment_views.xml",
-        "views/budget_move_views.xml",
+        "views/budget_menus.xml",
+        "views/budget_expenditure_report_views.xml",
         "security/ir.model.access.csv",
     ],
     "demo": [

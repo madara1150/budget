@@ -10,7 +10,7 @@
 .record-row:hover,
 .record-row:active {
     background-color: #e6e6e6 !important;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.1s ease-in-out;
     cursor: pointer;
 }
 
@@ -60,7 +60,7 @@ tr.slide-up {
 }
 
 .blink-text {
-    animation: blink 2s infinite;
+    animation: blink 3s infinite;
 }
 
 .o_budget_template_expense_page {
@@ -78,5 +78,9 @@ tr.slide-up {
     padding: 2px;
     font-size: 12px;
     text-align: right;
+}
+
+.table-sm > :not(caption) > * > *{
+    padding: 0.3rem 0.3rem;
 }
 

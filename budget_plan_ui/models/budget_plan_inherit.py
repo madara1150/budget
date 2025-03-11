@@ -15,6 +15,24 @@ class BudgetPlanInherit(models.Model):
         related="template_id.budget_type", string="Budget Type", store=True
     )
 
+    def action_open_edit_budet(self):
+        session = request.session
+        session.update({"budget_template_id": self.template_id.id})
+
+        if self.budget_type == "expense":
+            return {
+                "type": "ir.actions.client",
+                "name": "Expense Budget",
+                "tag": "expense_budget",
+            }
+
+        if self.budget_type == "revenue":
+            return {
+                "type": "ir.actions.client",
+                "name": "Revenue Budget",
+                "tag": "revenue_budget",
+            }
+
     @api.model
     def get_id(self):
         session = request.session

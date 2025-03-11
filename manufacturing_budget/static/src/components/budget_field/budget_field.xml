@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr t-foreach="state.data" t-as="line" t-key="line.template_line_id">
+                <!-- <tr t-foreach="state.data" t-as="line" t-key="line.template_line_id">
                     <td class="fw-bold text-center">
                         <t t-esc="line.fund_analytic_id" />
                     </td>
@@ -20,7 +20,7 @@
                     <td class="fw-bold text-center">
                         <t t-esc="line.amount" />
                     </td>
-                </tr>
+                </tr> -->
             </tbody>
         </table>
     </t>
