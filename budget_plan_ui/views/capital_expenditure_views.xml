@@ -70,7 +70,7 @@
                 id="action_capital_expenditure_menu_action"
                 name="Capital Expenditure"
                 action="action_capital_expenditure"
-                parent="budget.budget_config_menu"
+                parent="budget.budget_root_menu"
             />
 
 </odoo>

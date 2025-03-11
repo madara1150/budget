@@ -20,6 +20,9 @@ export class Expense_budget extends Component {
         activity_active_name: "",
         activity_list: [],
         select_activity: 0,
+        activity_parent_path:[],
+        activity_selected_code:"",
+        activity_selected_list: []
       },
       load: {
         loading: false,
@@ -223,10 +226,20 @@ export class Expense_budget extends Component {
   }
 
   // ทำหน้าแสดง loading
-  loadingToggle = async (name, id_active) => {
+  loadingToggle = async (name, activity) => {
     this.state.activity.activity_active_name = name;
-    this.state.activity.select_activity = id_active.id;
+    this.state.activity.select_activity = activity.id;
+    const activity_parent_path = activity.parent_path.split("/").filter(item => item !== "")
+    this.state.activity.activity_parent_path = activity_parent_path
+
+    // เลื่อนหน้า
+    const budgetDiv = document.querySelector(".o_select_budget_plan");
+        if (budgetDiv) {
+            budgetDiv.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+
     this.state.load.loading = true;
+    await this.fetchActivity()
     setTimeout(async () => {
       this.state.load.loading = false;
       await this.fetchData();
@@ -292,6 +305,17 @@ export class Expense_budget extends Component {
     );
     this.state.capital.capital_expenditure_list = [...capital_expenditure_id];
   }
+  //fetch activity
+  async fetchActivity() {
+    const activity_selected = await this.orm.searchRead(
+      "account.analytic.account",
+      [["id", "=", this.state.activity.activity_parent_path]],
+      []
+    );
+    this.state.activity.activity_selected_code = activity_selected.map(item => item.code).join("")
+    this.state.activity.activity_selected_list = activity_selected
+  }
+
 
   onBlurSavePlan = async (pos) => {
     await this.orm.write("budget.plan.line", [pos.plan_line.id], {
@@ -324,6 +348,10 @@ export class Expense_budget extends Component {
     this.state.formated.amount[`${pos.code}-${pos.id}`] = this.formattedAmount(
       this.state.formated.amount[`${pos.code}-${pos.id}`]
     );
+    await this.fetchBudgetPlanLines()
+    await this.mergeData()
+    await this.generateState();
+    
   };
 
   // รวมข้อมูล
@@ -374,7 +402,7 @@ export class Expense_budget extends Component {
     // หากิจกรรม
     const plan_activity_id = await this.orm.searchRead(
       "account.analytic.plan",
-      [["name", "=", "Activity (ด้าน/แผนงาน/กิจกรรม)"]],
+      [["code", "=", "activities"]],
       []
     );
     const plan_activity = await this.orm.searchRead(
@@ -387,7 +415,7 @@ export class Expense_budget extends Component {
     // หากองทุน
     const plan_fund_id = await this.orm.searchRead(
       "account.analytic.plan",
-      [["name", "=", "Fund (กองทุน)"]],
+      [["code", "=", "funds"]],
       []
     );
 

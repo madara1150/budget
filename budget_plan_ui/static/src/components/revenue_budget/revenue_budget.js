@@ -145,6 +145,8 @@ export class Revenue_budget extends Component {
     this.state.formated.amount[`${pos.code}-${pos.id}`] = this.formattedAmount(
       this.state.formated.amount[`${pos.code}-${pos.id}`]
     );
+    await this.fetchData()
+    await this.generateState()
   };
 
   async fetchData() {

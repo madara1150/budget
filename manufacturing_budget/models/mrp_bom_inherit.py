@@ -22,7 +22,7 @@ class MrpBomInherit(models.Model):
         default="no_budget",
         string="budget",
     )
-    final_data = fields.Text(string="Selected Budget Plan")
+    final_data = fields.Json(string="Selected Budget Plan")
 
     # def action_budget_plan(self):
     #     """เปิด Wizard Budget Plan"""

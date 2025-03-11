@@ -20,15 +20,8 @@
             <xpath expr="//field[@name='user_id']/..">
               <div> 
                   <field name="budget_type" invisible="1" />
-                  <button name="%(action_budget_plan_expense)d"
-                          type="action"
-                          attrs="{'invisible': [('budget_type', '!=', 'expense')]}"
-                          class="btn btn-primary"
-                          string="edit"/>
-
-                  <button name="%(action_budget_plan_revenue)d"
-                          type="action"
-                          attrs="{'invisible': [('budget_type', '!=', 'revenue')]}"
+                  <button name="action_open_edit_budet"
+                          type="object"
                           class="btn btn-primary"
                           string="edit"/>
               </div>

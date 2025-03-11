@@ -45,38 +45,38 @@ class BudgetPlanWizard(models.TransientModel):
                     }
                 )
 
-    @api.model
-    def default_get(self, fields_list):
-        """โหลดค่า default จาก mrp.bom"""
-        defaults = super().default_get(fields_list)
+    # @api.model
+    # def default_get(self, fields_list):
+    #     """โหลดค่า default จาก mrp.bom"""
+    #     defaults = super().default_get(fields_list)
 
-        if self.env.context.get("default_mrp_bom_id"):
-            mrp_bom = self.env["mrp.bom"].browse(self.env.context["default_mrp_bom_id"])
-            if mrp_bom.final_data:
-                final_data_dict = json.loads(mrp_bom.final_data)
+    #     if self.env.context.get("default_mrp_bom_id"):
+    #         mrp_bom = self.env["mrp.bom"].browse(self.env.context["default_mrp_bom_id"])
+    #         if mrp_bom.final_data:
+    #             final_data_dict = json.loads(mrp_bom.final_data)
 
-                defaults["template_id"] = final_data_dict.get("template_id", False)
-                defaults["fund_analytic_id"] = final_data_dict.get(
-                    "fund_analytic_id", False
-                )
+    #             defaults["template_id"] = final_data_dict.get("template_id", False)
+    #             defaults["fund_analytic_id"] = final_data_dict.get(
+    #                 "fund_analytic_id", False
+    #             )
 
-                wizard_lines = []
-                for line in final_data_dict.get("lines", []):
-                    wizard_lines.append(
-                        (
-                            0,
-                            0,
-                            {
-                                "template_line_id": line.get("template_line_id"),
-                                "code": line.get("code"),
-                                "name": line.get("name"),
-                                "amount": line.get("amount"),
-                            },
-                        )
-                    )
-                defaults["wizard_line_ids"] = wizard_lines
+    #             wizard_lines = []
+    #             for line in final_data_dict.get("lines", []):
+    #                 wizard_lines.append(
+    #                     (
+    #                         0,
+    #                         0,
+    #                         {
+    #                             "template_line_id": line.get("template_line_id"),
+    #                             "code": line.get("code"),
+    #                             "name": line.get("name"),
+    #                             "amount": line.get("amount"),
+    #                         },
+    #                     )
+    #                 )
+    #             defaults["wizard_line_ids"] = wizard_lines
 
-        return defaults
+    #     return defaults
 
     def action_confirm(self):
         """เมื่อกด Confirm ให้บันทึกข้อมูลไปยัง MRP BOM"""
