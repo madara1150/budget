@@ -15,8 +15,9 @@
                     <group class="o_half">
                         <button class="btn btn-primary" 
                             name="action_budget_plan" 
-                            string="Budget" type="" 
-                            attrs="{'invisible': [('budobjectget_type', '!=', 'budget')]}"/>
+                            string="Budget"
+                            type="object"
+                            attrs="{'invisible': [('budget_type', '!=', 'budget')]}"/>
                     </group>
                 </group>
             </xpath>

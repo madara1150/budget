@@ -10,7 +10,6 @@ export class Budget_control_panel extends Component {
             "top-right": false,
             "bottom-right": false,
         };
-        this.env.config.viewSwitcherEntries = [];
     }
 }
 
