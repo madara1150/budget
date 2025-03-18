@@ -76,6 +76,10 @@ export class Expense_budget extends Component {
     });
   }
 
+  onWillUnmount() {
+    this.env.bus.removeEventListener("modal_click", this.onCustomEvent);
+}
+
   formattedAmount(value) {
     return new Intl.NumberFormat("en-US").format(value);
   }
@@ -315,7 +319,6 @@ export class Expense_budget extends Component {
     this.state.activity.activity_selected_code = activity_selected.map(item => item.code).join("")
     this.state.activity.activity_selected_list = activity_selected
   }
-
 
   onBlurSavePlan = async (pos) => {
     await this.orm.write("budget.plan.line", [pos.plan_line.id], {

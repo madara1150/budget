@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
+                <field name="amount" />
             </tree>
         </field>
     </record>
@@ -71,6 +72,7 @@
                 name="Capital Expenditure"
                 action="action_capital_expenditure"
                 parent="budget.budget_root_menu"
+                sequence="89"
             />
 
 </odoo>
