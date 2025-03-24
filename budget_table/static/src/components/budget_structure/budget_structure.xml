@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget_table.Budget_structure" t-inherit="budget.BudgetExpenditureReportMain" t-inherit-mode="extension" owl="1">
+        <xpath expr="//th[@name='var_f']" position="after">
+            <th>Hello</th>
+        </xpath>
+
+         <xpath expr="//th[@name='var_a']" position="attributes">
+            <attribute name="t-on-click">onClickRedirect</attribute>
+            <attribute name="style">cursor: pointer;</attribute>
+        </xpath>
+
+        <!-- <xpath expr="//td[t/t-esc='formatFloat(line.a, {'digits': [false, precision]})']" position="attributes">
+            <attribute name="style">cursor: pointer; color: red;</attribute>
+        </xpath> -->
+
+        <xpath expr="//td[@class='text-end'][1]" position="attributes">
+            <attribute name="style">cursor: pointer; </attribute>
+            <attribute name="t-on-click">() =>onChecktest(line.id)</attribute>
+        </xpath>
+    </t>
+</templates>
