@@ -36,11 +36,11 @@ class MrpBomInherit(models.Model):
         wizard = self.env["budget.plan.wizard"].search(
             [("mrp_bom_id", "=", self.id)], limit=1
         )
-
         if final_data_dict:
             wizard_values = {
                 "template_id": template_id,
                 "fund_analytic_id": fund_analytic_id,
+                "mrp_bom_id": self.id,
                 "wizard_line_ids": [
                     (
                         0,
@@ -54,8 +54,9 @@ class MrpBomInherit(models.Model):
                 ],
             }
 
-            if wizard:
+            if wizard.exists():
                 wizard.write(wizard_values)
+
             else:
                 wizard = self.env["budget.plan.wizard"].create(wizard_values)
         return {

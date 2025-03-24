@@ -34,7 +34,7 @@ export class NoteEditor extends Component {
     }
 }
 
-NoteEditor.template = "budget_plan.NoteEditor";
+NoteEditor.template = "budget_plan_ui.NoteEditor";
 NoteEditor.props = {
     data:Object,
     updateNote: Function,

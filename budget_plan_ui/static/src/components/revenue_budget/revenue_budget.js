@@ -187,6 +187,6 @@ export class Revenue_budget extends Component {
     await this.mergeData();
   }
 }
-Revenue_budget.template = "budget_plan.revenue_budget";
+Revenue_budget.template = "budget_plan_ui.revenue_budget";
 Revenue_budget.components = { Budget_control_panel, NoteEditor };
 registry.category("actions").add("revenue_budget", Revenue_budget);
