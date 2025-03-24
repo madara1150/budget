@@ -13,5 +13,5 @@ export class Budget_control_panel extends Component {
     }
 }
 
-Budget_control_panel.template = "budget_plan.budget_control_panel";
+Budget_control_panel.template = "budget_plan_ui.budget_control_panel";
 Budget_control_panel.components = { ControlPanel }

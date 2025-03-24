@@ -462,7 +462,7 @@ export class Expense_budget extends Component {
   }
 }
 
-Expense_budget.template = "budget_plan.expense_budget";
+Expense_budget.template = "budget_plan_ui.expense_budget";
 Expense_budget.components = {
   Budget_control_panel,
   NoteEditor,

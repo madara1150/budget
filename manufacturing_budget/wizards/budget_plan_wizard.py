@@ -8,7 +8,7 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class BudgetPlanWizard(models.TransientModel):
+class BudgetPlanWizard(models.Model):
     _name = "budget.plan.wizard"
     _description = _("Budget Plan Wizard")
 
@@ -70,7 +70,7 @@ class BudgetPlanWizard(models.TransientModel):
         return {"type": "ir.actions.act_window_close"}
 
 
-class BudgetPlanWizardLine(models.TransientModel):
+class BudgetPlanWizardLine(models.Model):
     _name = "budget.plan.wizard.line"
     _description = _("Budget Plan Wizard Line")
 

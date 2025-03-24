@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
-    <t t-name="budget_plan.NoteEditor" owl="1">
+    <t t-name="budget_plan_ui.NoteEditor" owl="1">
         <div class="d-flex gap-2 align-items-center">
             <span t-attf-style="margin-left: {{ props.data.level * 24 }}px">
                 <t t-esc="props.data.name" />
