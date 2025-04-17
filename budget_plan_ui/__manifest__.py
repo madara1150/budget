@@ -6,7 +6,12 @@
     "author": "Aginix Technologies",
     "website": "https://github.com/madara1150/budget",
     "category": "KMITL/Budgeting",
-    "depends": ["base", "web", "budget_plan", "account_analytic_parent"],
+    "depends": [
+        "base",
+        "web",
+        "budget_plan",
+        "account_analytic_parent",
+    ],
     "data": [
         "views/capital_expenditure_views.xml",
         "security/ir.model.access.csv",

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget_table.Budget_structure" t-inherit="budget.BudgetExpenditureReportMain" t-inherit-mode="extension" owl="1">
+        <xpath expr="//td[@class='text-end'][1]" position="attributes">
+            <attribute name="style">cursor: pointer; </attribute>
+            <attribute name="t-on-click">onClickBudget</attribute>
+            <attribute name="t-att-data-line-id">line.id</attribute>
+            <attribute name="t-att-data-has-children">line.has_children</attribute>
+        </xpath>
+    </t>
+</templates>
