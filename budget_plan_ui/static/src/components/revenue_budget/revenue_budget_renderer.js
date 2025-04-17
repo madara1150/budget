@@ -1,16 +1,13 @@
 /** @odoo-module **/
 
-import { useService } from "@web/core/utils/hooks";
-import { Component, useState, onWillStart, useEnv } from "@odoo/owl";
-import { Budget_control_panel } from "../budget_control_panel/budget_control_panel";
 import { NoteEditor } from "../note_editor/note_editor";
-import { Budget_table } from "../budget_table/budget_table";
+import { useService } from "@web/core/utils/hooks";
+import { Component, useState, onWillStart } from "@odoo/owl";
 
-export class Revenue_budget extends Component {
+export class RevenueBudgetRenderer extends Component {
   setup() {
     this.orm = useService("orm");
     this.action = useService("action");
-    this.env = useEnv();
     this.state = useState({
       budget_plan: {
         budget_plan_data: [],
@@ -34,18 +31,12 @@ export class Revenue_budget extends Component {
         amount: {},
       },
     });
-    this.env.bus.addEventListener("fetch", this.updateData);
     onWillStart(async () => {
       await this.fetchData();
       await this.mergeData();
       await this.generateState();
     });
   }
-
-  updateData = async (ev) => {
-    await this.fetchData();
-    await this.mergeData();
-  };
 
   formattedAmount(value) {
     return new Intl.NumberFormat("en-US").format(value);
@@ -85,7 +76,6 @@ export class Revenue_budget extends Component {
           return {
             ...templateLine,
             plan_line: matchingPlanLine || null,
-            plan_id: this.state.budget_plan.budget_plan_id,
           };
         }
       );
@@ -180,7 +170,6 @@ export class Revenue_budget extends Component {
 
     const budget_plan = await this.get_budget_plan(budget_template_id);
     this.state.budget_plan.budget_plan_data = budget_plan;
-    this.state.budget_plan.budget_plan_id = budget_plan.id;
 
     const budget_plan_line = await this.get_budget_plan_line(budget_plan.id);
     this.state.budget_plan_line.budget_plan_line_data = budget_plan_line;
@@ -205,5 +194,5 @@ export class Revenue_budget extends Component {
     await this.mergeData();
   }
 }
-Revenue_budget.template = "budget_plan_ui.revenue_budget";
-Revenue_budget.components = { Budget_control_panel, NoteEditor, Budget_table };
+RevenueBudgetRenderer.components = { NoteEditor };
+RevenueBudgetRenderer.template = "budget_plan_ui.revenue_budget_renderer";

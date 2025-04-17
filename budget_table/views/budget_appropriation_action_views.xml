@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="custom_budget_appropriation_tree" model="ir.ui.view">
+        <field name="name">budget.appropriation.line.tree.custom</field>
+        <field name="model">budget.appropriation.line</field>
+        <field name="arch" type="xml">
+            <tree string="Custom Budget Appropriation Line">
+                <field name="date_range_fy_id"/>
+                <field name="fund_analytic_id"/>
+                <field name="amount"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

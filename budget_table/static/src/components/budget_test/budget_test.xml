@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="budget_table.Budget_test" t-inherit-mode="extension" owl="1">
+
+    </t>
+</templates>
