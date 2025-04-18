@@ -28,7 +28,6 @@ export class Budget_table extends Component {
     this.orm = useService("orm");
     this.env = useEnv();
     this.env.bus.addEventListener("budget-type", this.onChangePlan);
-    console.log(this.props.data)
 
     onWillStart(async () => {
       await this.generateState();
