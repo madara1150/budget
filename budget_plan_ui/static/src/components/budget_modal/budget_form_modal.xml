@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
-    <t t-name="budget_plan_ui.Create_edit_modal" owl="1">
+    <t t-name="budget_plan_ui.Budget_form_modal" owl="1">
         <div class="modal fade" id="capital_modal" tabindex="-1" aria-labelledby="capitalModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">

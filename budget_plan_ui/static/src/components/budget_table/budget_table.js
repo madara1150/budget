@@ -3,8 +3,8 @@
 import { Component, useState, useEnv, onWillStart } from "@odoo/owl";
 import { NoteEditor } from "../note_editor/note_editor";
 import { useService } from "@web/core/utils/hooks";
-import { Create_edit_modal } from "../create_edit_modal/create_edit_modal";
-import { Budget_modal } from "../budget_modal/budget_modal";
+import { Budget_form_modal } from "../budget_modal/budget_form_modal";
+import { Budget_tree_modal } from "../budget_modal/budget_tree_modal";
 
 export class Budget_table extends Component {
   setup() {
@@ -134,8 +134,8 @@ Budget_table.props = {
 
 Budget_table.components = {
   NoteEditor,
-  Create_edit_modal,
-  Budget_modal,
+  Budget_tree_modal,
+  Budget_form_modal,
 };
 
 Budget_table.template = "budget_plan_ui.Budget_table";
