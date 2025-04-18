@@ -2,10 +2,8 @@
 
 import { Component, useState, onWillStart, useEnv } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-import { NoteEditor } from "../note_editor/note_editor";
 import { CharField } from "@web/views/fields/char/char_field";
 import { IntegerField } from "@web/views/fields/integer/integer_field";
-import { Create_edit_modal } from "../create_edit_modal/create_edit_modal";
 import { Budget_table } from "../budget_table/budget_table";
 
 export class ExpenseBudgetRenderer extends Component {
@@ -49,7 +47,7 @@ export class ExpenseBudgetRenderer extends Component {
   }
 
   onWillUnmount() {
-    // this.env.bus.removeEventListener("modal_click", this.onCustomEvent);
+    this.env.bus.removeEventListener("fetch", this.updateData);
   }
 
   updateData = async (ev) => {
@@ -58,7 +56,6 @@ export class ExpenseBudgetRenderer extends Component {
     await this.mergeData();
   };
 
-  //   เลือก budget เอาประเภทไหน
   async onBudgetChange(ev) {
     const selectedId = parseInt(ev.target.value);
     this.env.bus.trigger("budget-type", {
@@ -67,7 +64,6 @@ export class ExpenseBudgetRenderer extends Component {
     });
   }
 
-  //   เมื่อกดแล้วจะเลื่อนหน้าไปให้เลือก budget
   loadingToggle = async (ev) => {
     const data = ev.detail.activity;
     this.state.activity.activity_active_name = data.name;
@@ -225,10 +221,8 @@ export class ExpenseBudgetRenderer extends Component {
 }
 
 ExpenseBudgetRenderer.components = {
-  NoteEditor,
   CharField,
   IntegerField,
-  Create_edit_modal,
   Budget_table,
 };
 

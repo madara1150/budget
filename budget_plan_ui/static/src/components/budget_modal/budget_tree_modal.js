@@ -3,7 +3,7 @@
 import { Component, useEnv, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
-export class Budget_modal extends Component {
+export class Budget_tree_modal extends Component {
   setup() {
     this.state = useState({
       budget_plan: {
@@ -150,4 +150,4 @@ export class Budget_modal extends Component {
   }
 }
 
-Budget_modal.template = "budget_plan_ui.Budget_modal";
+Budget_tree_modal.template = "budget_plan_ui.Budget_tree_modal";

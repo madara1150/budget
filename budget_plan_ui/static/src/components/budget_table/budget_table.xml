@@ -94,8 +94,8 @@
                         </tr>
                     </t>
 
-                    <Budget_modal />
-                    <Create_edit_modal />
+                    <Budget_tree_modal />
+                    <Budget_form_modal />
                 </t>
                 <t t-if="props.type == 'revenue'">
                     <t t-foreach="props.data" t-as="template" t-key="template.id">
