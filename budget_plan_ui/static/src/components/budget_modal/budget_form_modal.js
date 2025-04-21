@@ -20,7 +20,7 @@ export class Budget_form_modal extends Component {
       },
     });
   }
-  
+
   onModalEvent = (ev) => {
     const detail = ev.detail;
     this.state.capital.capital_id = detail.capital.capital_id;

@@ -36,7 +36,7 @@
                     </t>
                 </t>
                 <t t-if="props.type == 'expense'">
-                    <t t-foreach="props.data" t-as="template" t-key="template.id">
+                    <t t-foreach="state.localData" t-as="template" t-key="template.id">
                         <tr t-if="template.root_parent == state.budget_plan.plan and template.root_parent != 193">
                             <td class="fw-semibold text-center">
                                 <t t-esc="template.code" />
@@ -60,8 +60,7 @@
                                 </t>
                             </td>
                         </tr>
-
-                        <tr t-elif="state.budget_plan.plan == 193 and template.root_parent == 193">
+                        <tr t-elif="state.budget_plan.plan == 193 and template.root_parent == 193" >
                             <td class="fw-semibold text-center">
                                 <t t-esc="template.code" />
                             </td>
@@ -98,7 +97,7 @@
                     <Budget_form_modal />
                 </t>
                 <t t-if="props.type == 'revenue'">
-                    <t t-foreach="props.data" t-as="template" t-key="template.id">
+                    <t t-foreach="state.localData" t-as="template" t-key="template.id">
                         <tr>
                             <td class="fw-semibold text-center">
                                 <t t-esc="template.code" />

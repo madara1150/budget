@@ -15,6 +15,7 @@ export class Budget_tree_modal extends Component {
       budget_template: {
         budget_template_line_id: 0,
       },
+      capital: {},
       modalMode: "create",
     });
     this.orm = useService("orm");
@@ -42,6 +43,10 @@ export class Budget_tree_modal extends Component {
     this.state.budget_plan.plan = data.plan;
     this.state.budget_plan.budget_plan_id = data.budget_plan_id;
   };
+
+  refresh() {
+    this.env.bus.trigger("fetch", {});
+  }
 
   sendEvent() {
     this.env.bus.trigger("modal_event", {
@@ -81,72 +86,98 @@ export class Budget_tree_modal extends Component {
     this.state.capital.note = detail.capital.note;
     this.state.capital.amount = detail.capital.amount;
     if (this.state.modalMode == "edit") {
-      await this.saveEditCapital();
+      await this.editCapital();
     } else {
       await this.saveCapital();
     }
-    this.env.bus.trigger("fetch", {});
+    this.refresh();
   };
 
   async saveCapital() {
-    if (this.state.budget_plan.budget_plan_line_id != 0) {
-      await this.orm.create("capital.expenditure", [
-        {
-          name: this.state.capital.name,
-          expected_purchase_date:
-            this.state.capital.expected_purchase_date || null,
-          amount: this.state.capital.amount,
-          note: this.state.capital.note,
-          budget_plan_line_id: this.state.budget_plan.budget_plan_line_id,
-          payment: "single",
-        },
-      ]);
-    } else {
-      const budget_plan_line_id_create = await this.orm.create(
-        "budget.plan.line",
-        [
+    if (this.__owl__.isDestroyed) return;
+    try {
+      if (this.state.budget_plan.budget_plan_line_id !== 0) {
+        await this.orm.create("capital.expenditure", [
           {
-            plan_id: this.state.budget_plan.budget_plan_id,
-            template_line_id:
-              this.state.budget_template.budget_template_line_id,
-            amount: 0,
+            name: this.state.capital.name,
+            expected_purchase_date:
+              this.state.capital.expected_purchase_date || null,
+            amount: this.state.capital.amount,
+            note: this.state.capital.note,
+            budget_plan_line_id: this.state.budget_plan.budget_plan_line_id,
+            payment: "single",
           },
-        ]
-      );
-      await this.orm.create("capital.expenditure", [
-        {
-          name: this.state.capital.name,
-          expected_purchase_date:
-            this.state.capital.expected_purchase_date || null,
-          amount: this.state.capital.amount,
-          note: this.state.capital.note,
-          budget_plan_line_id: budget_plan_line_id_create,
-          payment: "single",
-        },
-      ]);
+        ]);
+      } else {
+        const budget_plan_line_id_create = await this.orm.create(
+          "budget.plan.line",
+          [
+            {
+              plan_id: this.state.budget_plan.budget_plan_id,
+              template_line_id:
+                this.state.budget_template.budget_template_line_id,
+              amount: 0,
+            },
+          ]
+        );
+
+        if (this.__owl__.isDestroyed) return;
+        await this.orm.create("capital.expenditure", [
+          {
+            name: this.state.capital.name,
+            expected_purchase_date:
+              this.state.capital.expected_purchase_date || null,
+            amount: this.state.capital.amount,
+            note: this.state.capital.note,
+            budget_plan_line_id: budget_plan_line_id_create,
+            payment: "single",
+          },
+        ]);
+      }
+      if (this.__owl__.isDestroyed) return;
+      $("#capital_tree").modal("hide");
+      this.refresh();
+    } catch (error) {
+      console.error("Component Error", error);
     }
-    $("#capital_tree").modal("hide");
-    this.env.bus.trigger("fetch", {});
   }
 
-  async saveEditCapital() {
-    await this.orm.write(
-      "capital.expenditure",
-      [this.state.capital.capital_id],
-      {
-        name: this.state.capital.name,
-        expected_purchase_date: this.state.capital.expected_purchase_date,
-        amount: this.state.capital.amount,
-        note: this.state.capital.note,
-      }
-    );
-    $("#capital_tree").modal("hide");
-    this.env.bus.trigger("fetch", {});
+  async editCapital() {
+    try {
+      if (this.__owl__.isDestroyed) return;
+
+      await this.orm.write(
+        "capital.expenditure",
+        [this.state.capital.capital_id],
+        {
+          name: this.state.capital.name,
+          expected_purchase_date: this.state.capital.expected_purchase_date,
+          amount: this.state.capital.amount,
+          note: this.state.capital.note,
+        }
+      );
+
+      if (this.__owl__.isDestroyed) return;
+
+      $("#capital_tree").modal("hide");
+      this.refresh();
+    } catch (error) {
+      console.error("component Error", error);
+    }
   }
 
   async deleteCapital(capital) {
-    await this.orm.unlink("capital.expenditure", [capital.id]);
-    this.env.bus.trigger("fetch", {});
+    try {
+      if (this.__owl__.isDestroyed) return;
+
+      await this.orm.unlink("capital.expenditure", [capital.id]);
+
+      if (this.__owl__.isDestroyed) return;
+
+      this.refresh();
+    } catch (error) {
+      console.error("component Error", error);
+    }
   }
 }
 

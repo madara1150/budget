@@ -22,6 +22,7 @@ export class ExpenseBudgetRenderer extends Component {
         budget_template_id: 0,
         budget_template_line_data_list: [],
         budget_template_name: "",
+        refresh_key: "",
       },
       activity: {
         activity_active_name: "",
@@ -44,10 +45,6 @@ export class ExpenseBudgetRenderer extends Component {
     onWillStart(async () => {
       await this.fetch();
     });
-  }
-
-  onWillUnmount() {
-    this.env.bus.removeEventListener("fetch", this.updateData);
   }
 
   updateData = async (ev) => {
@@ -140,20 +137,22 @@ export class ExpenseBudgetRenderer extends Component {
               matchingCapitalExpenditures.length > 0
                 ? matchingCapitalExpenditures
                 : null,
-            plan_id: this.state.budget_plan.budget_plan_id
+            plan_id: this.state.budget_plan.budget_plan_id,
           };
         }
       );
 
-    this.state.budget_template.budget_template_line_data_list = mergedData.map(
-      (item) => ({
-        ...item,
-        can_edit: item.has_children.length === 0,
-        root_parent: item.parent_id
-          ? parseInt(item.parent_path.split("/")[0])
-          : item.id,
-      })
+    const finalData = mergedData.map((item) => ({
+      ...item,
+      can_edit: item.has_children.length === 0,
+      root_parent: item.parent_id
+        ? parseInt(item.parent_path.split("/")[0])
+        : item.id,
+    }));
+    this.state.budget_template.budget_template_line_data_list = JSON.parse(
+      JSON.stringify(finalData)
     );
+    this.state.budget_template.refresh_key = Date.now();
   }
 
   async get_budget_template_id() {
@@ -171,17 +170,21 @@ export class ExpenseBudgetRenderer extends Component {
   }
 
   async get_plan(type = "funds", fields = []) {
-    const plan_id = await this.orm.searchRead(
-      "account.analytic.plan",
-      [["code", "=", type]],
-      fields
-    );
-    const plan_data = await this.orm.searchRead(
-      "account.analytic.account",
-      [["plan_id", "=", plan_id[0].id]],
-      fields
-    );
-    return plan_data;
+    try {
+      const plan_id = await this.orm.searchRead(
+        "account.analytic.plan",
+        [["code", "=", type]],
+        fields
+      );
+      const plan_data = await this.orm.searchRead(
+        "account.analytic.account",
+        [["plan_id", "=", plan_id[0].id]],
+        fields
+      );
+      return plan_data;
+    } catch (error) {
+      console.warn(error);
+    }
   }
 
   async get_budget_plan(template_id) {
