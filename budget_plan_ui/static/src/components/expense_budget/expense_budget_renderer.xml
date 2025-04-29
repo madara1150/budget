@@ -53,6 +53,8 @@
 
         <Budget_table data="state.budget_template.budget_template_line_data_list"
             isShow="!state.load.loading and !!state.activity.activity_active_name"
-            type="'expense'" />
+            type="'expense'"
+            t-key="state.budget_template.refresh_key"
+             />
     </t>
 </templates>

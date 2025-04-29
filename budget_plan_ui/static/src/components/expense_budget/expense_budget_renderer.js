@@ -2,10 +2,8 @@
 
 import { Component, useState, onWillStart, useEnv } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-import { NoteEditor } from "../note_editor/note_editor";
 import { CharField } from "@web/views/fields/char/char_field";
 import { IntegerField } from "@web/views/fields/integer/integer_field";
-import { Create_edit_modal } from "../create_edit_modal/create_edit_modal";
 import { Budget_table } from "../budget_table/budget_table";
 
 export class ExpenseBudgetRenderer extends Component {
@@ -24,6 +22,7 @@ export class ExpenseBudgetRenderer extends Component {
         budget_template_id: 0,
         budget_template_line_data_list: [],
         budget_template_name: "",
+        refresh_key: "",
       },
       activity: {
         activity_active_name: "",
@@ -48,17 +47,12 @@ export class ExpenseBudgetRenderer extends Component {
     });
   }
 
-  onWillUnmount() {
-    // this.env.bus.removeEventListener("modal_click", this.onCustomEvent);
-  }
-
   updateData = async (ev) => {
     await this.fetchBudgetPlanLines();
     await this.fetchBudgetCapital();
     await this.mergeData();
   };
 
-  //   เลือก budget เอาประเภทไหน
   async onBudgetChange(ev) {
     const selectedId = parseInt(ev.target.value);
     this.env.bus.trigger("budget-type", {
@@ -67,7 +61,6 @@ export class ExpenseBudgetRenderer extends Component {
     });
   }
 
-  //   เมื่อกดแล้วจะเลื่อนหน้าไปให้เลือก budget
   loadingToggle = async (ev) => {
     const data = ev.detail.activity;
     this.state.activity.activity_active_name = data.name;
@@ -144,20 +137,22 @@ export class ExpenseBudgetRenderer extends Component {
               matchingCapitalExpenditures.length > 0
                 ? matchingCapitalExpenditures
                 : null,
-            plan_id: this.state.budget_plan.budget_plan_id
+            plan_id: this.state.budget_plan.budget_plan_id,
           };
         }
       );
 
-    this.state.budget_template.budget_template_line_data_list = mergedData.map(
-      (item) => ({
-        ...item,
-        can_edit: item.has_children.length === 0,
-        root_parent: item.parent_id
-          ? parseInt(item.parent_path.split("/")[0])
-          : item.id,
-      })
+    const finalData = mergedData.map((item) => ({
+      ...item,
+      can_edit: item.has_children.length === 0,
+      root_parent: item.parent_id
+        ? parseInt(item.parent_path.split("/")[0])
+        : item.id,
+    }));
+    this.state.budget_template.budget_template_line_data_list = JSON.parse(
+      JSON.stringify(finalData)
     );
+    this.state.budget_template.refresh_key = Date.now();
   }
 
   async get_budget_template_id() {
@@ -175,17 +170,21 @@ export class ExpenseBudgetRenderer extends Component {
   }
 
   async get_plan(type = "funds", fields = []) {
-    const plan_id = await this.orm.searchRead(
-      "account.analytic.plan",
-      [["code", "=", type]],
-      fields
-    );
-    const plan_data = await this.orm.searchRead(
-      "account.analytic.account",
-      [["plan_id", "=", plan_id[0].id]],
-      fields
-    );
-    return plan_data;
+    try {
+      const plan_id = await this.orm.searchRead(
+        "account.analytic.plan",
+        [["code", "=", type]],
+        fields
+      );
+      const plan_data = await this.orm.searchRead(
+        "account.analytic.account",
+        [["plan_id", "=", plan_id[0].id]],
+        fields
+      );
+      return plan_data;
+    } catch (error) {
+      console.warn(error);
+    }
   }
 
   async get_budget_plan(template_id) {
@@ -225,10 +224,8 @@ export class ExpenseBudgetRenderer extends Component {
 }
 
 ExpenseBudgetRenderer.components = {
-  NoteEditor,
   CharField,
   IntegerField,
-  Create_edit_modal,
   Budget_table,
 };
 
