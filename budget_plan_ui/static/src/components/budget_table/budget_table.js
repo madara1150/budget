@@ -1,14 +1,15 @@
 /** @odoo-module **/
 
-import { Component, useState, useEnv, onWillStart } from "@odoo/owl";
+import { Component, useState, useEnv, onWillStart, useEffect } from "@odoo/owl";
 import { NoteEditor } from "../note_editor/note_editor";
 import { useService } from "@web/core/utils/hooks";
-import { Create_edit_modal } from "../create_edit_modal/create_edit_modal";
-import { Budget_modal } from "../budget_modal/budget_modal";
+import { Budget_form_modal } from "../budget_modal/budget_form_modal";
+import { Budget_tree_modal } from "../budget_modal/budget_tree_modal";
 
 export class Budget_table extends Component {
   setup() {
     this.state = useState({
+      localData: [...this.props.data],
       rotated: {},
       activity: {
         select_activity: 0,
@@ -29,13 +30,21 @@ export class Budget_table extends Component {
     this.env = useEnv();
     this.env.bus.addEventListener("budget-type", this.onChangePlan);
 
+    useEffect(
+      () => {
+        this.state.localData = [...this.props.data];
+        console.log(this.state.budget_plan.plan);
+      },
+      () => [this.props.data]
+    );
+
     onWillStart(async () => {
       await this.generateState();
     });
   }
 
   async generateState() {
-    this.props.data.map((data) => {
+    this.state.localData.map((data) => {
       if (data.plan_line) {
         this.state.budget_plan_line.amount[`${data.plan_line.id}-${data.id}`] =
           data.plan_line.amount;
@@ -44,7 +53,6 @@ export class Budget_table extends Component {
         this.state.budget_plan_line.note[`${data.plan_line.id}-${data.id}`] =
           data.plan_line.note;
       }
-
       return data.id;
     });
   }
@@ -61,6 +69,10 @@ export class Budget_table extends Component {
 
   formattedAmount(value) {
     return new Intl.NumberFormat("en-US").format(value);
+  }
+
+  refresh() {
+    this.env.bus.trigger("fetch", {});
   }
 
   parseNumber(value) {
@@ -91,12 +103,12 @@ export class Budget_table extends Component {
         note: note,
       });
     }
-    this.env.bus.trigger("fetch", {});
+    this.refresh()
   };
 
   onBlurSave = async (template, mode) => {
     if (mode == "create") {
-      await this.orm.create("budget.plan.line", [
+      const plan_line_id = await this.orm.create("budget.plan.line", [
         {
           plan_id: template.plan_id,
           activity_analytic_id: this.state.activity.select_activity,
@@ -107,6 +119,7 @@ export class Budget_table extends Component {
           ),
         },
       ]);
+      this.refresh();
       this.state.formated.amount[`${template.code}-${template.id}`] =
         this.formattedAmount(
           this.state.formated.amount[`${template.code}-${template.id}`]
@@ -117,11 +130,11 @@ export class Budget_table extends Component {
           this.state.formated.amount[`${template.plan_line.id}-${template.id}`]
         ),
       });
-      await this.generateState();
       this.state.formated.amount[`${template.plan_line.id}-${template.id}`] =
         this.formattedAmount(
           this.state.formated.amount[`${template.plan_line.id}-${template.id}`]
         );
+      this.refresh();
     }
   };
 }
@@ -134,8 +147,8 @@ Budget_table.props = {
 
 Budget_table.components = {
   NoteEditor,
-  Create_edit_modal,
-  Budget_modal,
+  Budget_tree_modal,
+  Budget_form_modal,
 };
 
 Budget_table.template = "budget_plan_ui.Budget_table";

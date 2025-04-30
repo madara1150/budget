@@ -3,7 +3,7 @@
 import { Component, useState, useEnv } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
-export class Create_edit_modal extends Component {
+export class Budget_form_modal extends Component {
   setup() {
     this.orm = useService("orm");
     this.env = useEnv();
@@ -20,6 +20,7 @@ export class Create_edit_modal extends Component {
       },
     });
   }
+
   onModalEvent = (ev) => {
     const detail = ev.detail;
     this.state.capital.capital_id = detail.capital.capital_id;
@@ -40,4 +41,4 @@ export class Create_edit_modal extends Component {
   };
 }
 
-Create_edit_modal.template = "budget_plan_ui.Create_edit_modal";
+Budget_form_modal.template = "budget_plan_ui.Budget_form_modal";
